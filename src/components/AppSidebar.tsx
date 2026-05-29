@@ -52,7 +52,7 @@ export function AppSidebar({ plano, onNavigate }: Props) {
         {ITEMS.map(({ to, label, icon: Icon, exact }) => (
           <Link
             key={to}
-            to={to}
+            to={to as "/app"}
             onClick={onNavigate}
             activeOptions={{ exact: !!exact }}
             className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
