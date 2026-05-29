@@ -93,9 +93,11 @@ export const Route = createFileRoute("/api/public/webhook/escalepay")({
             throw new Error(`Valor não reconhecido: ${amount}`);
           }
 
-          const update: Record<string, unknown> = {
-            trabalhos_disponiveis: novosTrabalhos,
-          };
+          const update: {
+            trabalhos_disponiveis: number;
+            plano?: string;
+            plano_expira?: string;
+          } = { trabalhos_disponiveis: novosTrabalhos };
           if (novoPlano) {
             update.plano = novoPlano;
             update.plano_expira = new Date(
