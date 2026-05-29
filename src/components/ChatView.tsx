@@ -12,9 +12,10 @@ import { getMessages } from "@/lib/chat.functions";
 
 interface Props {
   chatId: string | null;
-  seccao: "geral" | "trabalho";
+  seccao: "geral" | "trabalho" | "matematica";
   onChatCreated: (id: string) => void;
   placeholder?: string;
+  title?: string;
 }
 
 export function ChatView({ chatId, seccao, onChatCreated, placeholder }: Props) {
