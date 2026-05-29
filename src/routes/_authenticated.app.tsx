@@ -1,9 +1,12 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useState, createContext, useContext } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { Menu, X } from "lucide-react";
 
-import { ChatSidebar } from "@/components/ChatSidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { getProfileWithUsage } from "@/lib/chat.functions";
 
 interface AppCtx {
   activeChatId: string | null;
@@ -17,50 +20,47 @@ export const useAppCtx = () => {
 };
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => ({ meta: [{ title: "EstudaIA — Chat" }] }),
+  head: () => ({ meta: [{ title: "EstudaIA — Painel" }] }),
   component: AppShell,
 });
 
 function AppShell() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const fetchProfile = useServerFn(getProfileWithUsage);
+  const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
+  const plano = data?.profile?.plano ?? "free";
 
   return (
     <Ctx.Provider value={{ activeChatId, setActiveChatId }}>
       <div className="flex h-screen overflow-hidden bg-background">
-        {/* Sidebar desktop */}
         <div className="hidden md:flex">
-          <ChatSidebar
-            activeChatId={activeChatId}
-            onSelectChat={(id) => setActiveChatId(id)}
-          />
+          <AppSidebar plano={plano} />
         </div>
 
-        {/* Sidebar mobile (drawer) */}
         {mobileOpen && (
           <div className="fixed inset-0 z-40 flex md:hidden">
             <div
-              className="absolute inset-0 bg-black/40"
+              className="absolute inset-0 bg-black/50"
               onClick={() => setMobileOpen(false)}
             />
             <div className="relative z-50">
-              <ChatSidebar
-                activeChatId={activeChatId}
-                onSelectChat={(id) => {
-                  setActiveChatId(id);
-                  setMobileOpen(false);
-                }}
-              />
+              <AppSidebar plano={plano} onNavigate={() => setMobileOpen(false)} />
             </div>
           </div>
         )}
 
         <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex h-12 items-center border-b border-border px-3 md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setMobileOpen((v) => !v)}>
+          <div className="flex h-12 items-center border-b border-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="text-sidebar-foreground hover:bg-sidebar-accent"
+            >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <span className="ml-2 font-display text-lg text-primary">EstudaIA</span>
+            <span className="ml-2 font-display text-lg">EstudaIA</span>
           </div>
           <div className="flex-1 overflow-hidden">
             <Outlet />
