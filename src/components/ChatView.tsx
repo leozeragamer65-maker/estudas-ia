@@ -65,7 +65,7 @@ export function ChatView({ chatId, seccao, onChatCreated, placeholder, title }: 
           {mensagens.length === 0 && !enviando && (
             <div className="rounded-xl border border-border bg-card p-8 text-center">
               <h2 className="font-display text-2xl text-foreground">
-                {seccao === "trabalho" ? "Trabalho científico" : "Como te posso ajudar?"}
+                {title ?? (seccao === "trabalho" ? "Trabalho científico" : seccao === "matematica" ? "Matemática" : "Como te posso ajudar?")}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {placeholder ??
