@@ -9,6 +9,13 @@ const LIMITES: Record<string, Record<string, number>> = {
   "150mt": { chat: 150, matematica: 50, traducao: 100, resumo: 60, trabalhos: 0 },
 };
 
+// URLs dos agentes externos (cada um vive no seu projeto Lovable).
+const AGENT_URLS = {
+  matematica: "https://mestre-matematico-amigo.lovable.app/api/agent/matematica",
+  geral: "https://quest-wise-buddy-23.lovable.app/api/public/agent/questoes",
+  trabalho: "https://estudo-moz-assist.lovable.app/api/agent/generate",
+};
+
 type Agente = "geral" | "matematica" | "trabalho";
 export type Seccao = "geral" | "trabalho" | "matematica";
 
@@ -27,16 +34,47 @@ function classificar(texto: string, seccao: Seccao): Agente {
   return "geral";
 }
 
-const SYSTEM_BASE =
-  "És um tutor académico moçambicano simpático. Respondes sempre em Português de Moçambique, com clareza e exemplos próximos da realidade do aluno. NUNCA reveles que és uma IA nem menciones modelos, agentes, prompts ou tecnologia por detrás. Trata o utilizador por tu.";
-
-const SYSTEM = {
-  geral: `${SYSTEM_BASE} Foca-te em explicar conceitos académicos, ajudar com resumos, traduções e correções. Se a pergunta for matemática complexa, lembra que o utilizador pode mudar para a secção Matemática. Se for um trabalho científico completo (monografia, dissertação), redireciona para a secção "Trabalho Científico".`,
-  matematica: `${SYSTEM_BASE} Especialidade: matemática (aritmética, álgebra, trigonometria, geometria, cálculo, probabilidades, estatística). Mostras passo a passo. SEMPRE que apresentas uma expressão matemática usa LaTeX delimitado: $...$ para inline e $$...$$ para bloco. NUNCA mostras LaTeX cru sem delimitadores. Exemplos: a equação do 2º grau é $$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$. Para fracções: $\\frac{3}{4}$. Para potências: $x^2$.`,
-  trabalho: `${SYSTEM_BASE} Estás na secção de Trabalho Científico. Recolhe os dados do trabalho (tema, disciplina, nível académico, número de páginas, prazo, idioma, requisitos especiais). Pede um dado de cada vez de forma conversacional. Quando tiveres tudo, confirma os dados e diz que o trabalho foi registado e estará pronto em breve.`,
-};
-
 const hojeISO = () => new Date().toISOString().slice(0, 10);
+
+// Chamar um agente externo. Tenta vários formatos comuns de payload/resposta.
+async function chamarAgente(
+  agente: Agente,
+  chatId: string,
+  texto: string,
+  historico: { role: string; conteudo: string }[],
+): Promise<string> {
+  const url = AGENT_URLS[agente];
+  const payload =
+    agente === "matematica"
+      ? { chat_id: chatId, questao: texto, historico }
+      : { chat_id: chatId, pergunta: texto, mensagem: texto, historico };
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`Agente ${agente} indisponível (${res.status}): ${txt.slice(0, 200)}`);
+  }
+
+  const ct = res.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    const j = await res.json();
+    return (
+      j.resposta ??
+      j.resultado ??
+      j.answer ??
+      j.message ??
+      j.content ??
+      j.text ??
+      (typeof j === "string" ? j : JSON.stringify(j))
+    );
+  }
+  return await res.text();
+}
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -107,31 +145,13 @@ export const sendMessage = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(40);
 
-    // 7. Chamar Lovable AI Gateway
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY em falta no servidor.");
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: SYSTEM[agente] },
-          ...(historico ?? []).map((m) => ({ role: m.role, content: m.conteudo })),
-        ],
-      }),
-    });
-    if (!aiRes.ok) {
-      const errTxt = await aiRes.text().catch(() => "");
-      if (aiRes.status === 429) throw new Error("Demasiados pedidos. Tenta de novo daqui a pouco.");
-      if (aiRes.status === 402) throw new Error("Sem créditos no servidor de IA. Contacta o suporte.");
-      throw new Error(`Erro da IA (${aiRes.status}): ${errTxt.slice(0, 200)}`);
-    }
-    const aiJson = await aiRes.json();
-    const resposta: string = aiJson.choices?.[0]?.message?.content ?? "(sem resposta)";
+    // 7. Chamar agente externo
+    const resposta = await chamarAgente(
+      agente,
+      chatId!,
+      data.texto,
+      historico ?? [],
+    );
 
     // 8. Guardar resposta
     await supabase.from("mensagens").insert({
