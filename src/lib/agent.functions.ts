@@ -10,9 +10,11 @@ const LIMITES: Record<string, Record<string, number>> = {
 };
 
 type Agente = "geral" | "matematica" | "trabalho";
+export type Seccao = "geral" | "trabalho" | "matematica";
 
-function classificar(texto: string, seccao: "geral" | "trabalho"): Agente {
+function classificar(texto: string, seccao: Seccao): Agente {
   if (seccao === "trabalho") return "trabalho";
+  if (seccao === "matematica") return "matematica";
   const palavras = [
     "calcular", "resolver", "equação", "equacao", "integral", "derivada",
     "matriz", "logaritmo", "raiz", "trigonometria", "geometria",
