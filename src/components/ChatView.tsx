@@ -18,7 +18,7 @@ interface Props {
   title?: string;
 }
 
-export function ChatView({ chatId, seccao, onChatCreated, placeholder }: Props) {
+export function ChatView({ chatId, seccao, onChatCreated, placeholder, title }: Props) {
   const send = useServerFn(sendMessage);
   const fetchMsgs = useServerFn(getMessages);
   const qc = useQueryClient();
