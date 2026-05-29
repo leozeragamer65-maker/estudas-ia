@@ -62,6 +62,10 @@ function LoginPage() {
       toast.error("Diz-nos o teu nome.");
       return;
     }
+    if (senha !== confirmarSenha) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: phoneToEmail(telefone),
