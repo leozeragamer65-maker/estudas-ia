@@ -25,6 +25,7 @@ function LoginPage() {
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const validar = () => {
     if (!telefoneValido(telefone)) {
@@ -59,6 +60,10 @@ function LoginPage() {
     if (!validar()) return;
     if (nome.trim().length < 2) {
       toast.error("Diz-nos o teu nome.");
+      return;
+    }
+    if (senha !== confirmarSenha) {
+      toast.error("As senhas não coincidem.");
       return;
     }
     setLoading(true);
@@ -145,6 +150,15 @@ function LoginPage() {
                     type="password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="pw2c">Confirmar senha</Label>
+                  <Input
+                    id="pw2c"
+                    type="password"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
                   />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">
