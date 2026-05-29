@@ -25,6 +25,7 @@ function LoginPage() {
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const validar = () => {
     if (!telefoneValido(telefone)) {
