@@ -14,7 +14,232 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chats: {
+        Row: {
+          created_at: string
+          id: string
+          seccao: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          seccao?: string
+          titulo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          seccao?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mensagens: {
+        Row: {
+          chat_id: string
+          conteudo: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          chat_id: string
+          conteudo: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          chat_id?: string
+          conteudo?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          corpo: string
+          created_at: string
+          id: string
+          lida: boolean
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          corpo?: string
+          created_at?: string
+          id?: string
+          lida?: boolean
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          corpo?: string
+          created_at?: string
+          id?: string
+          lida?: boolean
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          plano: string
+          plano_expira: string | null
+          telefone: string
+          trabalhos_disponiveis: number
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nome?: string
+          plano?: string
+          plano_expira?: string | null
+          telefone: string
+          trabalhos_disponiveis?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          plano?: string
+          plano_expira?: string | null
+          telefone?: string
+          trabalhos_disponiveis?: number
+        }
+        Relationships: []
+      }
+      trabalhos: {
+        Row: {
+          chat_id: string | null
+          created_at: string
+          dados_formulario: Json
+          entregue_em: string | null
+          ficheiro_url: string | null
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          chat_id?: string | null
+          created_at?: string
+          dados_formulario?: Json
+          entregue_em?: string | null
+          ficheiro_url?: string | null
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          chat_id?: string | null
+          created_at?: string
+          dados_formulario?: Json
+          entregue_em?: string | null
+          ficheiro_url?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trabalhos_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          product_id: string | null
+          provider: string
+          raw: Json | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          product_id?: string | null
+          provider: string
+          raw?: Json | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          product_id?: string | null
+          provider?: string
+          raw?: Json | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      usage_daily: {
+        Row: {
+          chat: number
+          dia: string
+          matematica: number
+          resumo: number
+          trabalhos: number
+          traducao: number
+          user_id: string
+        }
+        Insert: {
+          chat?: number
+          dia?: string
+          matematica?: number
+          resumo?: number
+          trabalhos?: number
+          traducao?: number
+          user_id: string
+        }
+        Update: {
+          chat?: number
+          dia?: string
+          matematica?: number
+          resumo?: number
+          trabalhos?: number
+          traducao?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
