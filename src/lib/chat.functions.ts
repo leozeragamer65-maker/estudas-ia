@@ -89,20 +89,40 @@ export const submeterTrabalho = createServerFn({ method: "POST" })
         "Não tens trabalhos disponíveis. Compra um trabalho científico (50 MT) na página da Conta.",
       );
     }
-    const { error } = await supabase.from("trabalhos").insert({
-      user_id: userId,
-      dados_formulario: data,
-      status: "pendente",
-    });
+    const { data: trabalho, error } = await supabase
+      .from("trabalhos")
+      .insert({
+        user_id: userId,
+        dados_formulario: data,
+        status: "em_processamento",
+      })
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
     await supabase
       .from("profiles")
       .update({ trabalhos_disponiveis: profile.trabalhos_disponiveis - 1 })
       .eq("id", userId);
+
+    // Chamar agente externo para gerar o trabalho (tolerante a falha)
+    try {
+      await fetch("https://estudo-moz-assist.lovable.app/api/agent/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trabalho_id: trabalho.id,
+          user_id: userId,
+          ...data,
+        }),
+      });
+    } catch (e) {
+      console.error("Falha ao chamar agente generate:", e);
+    }
+
     await supabase.from("notifications").insert({
       user_id: userId,
       titulo: "Trabalho recebido",
       corpo: `O teu trabalho sobre "${data.tema}" foi registado. Vais ser notificado quando estiver pronto.`,
     });
-    return { ok: true };
+    return { ok: true, trabalho_id: trabalho.id };
   });
