@@ -12,10 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedContaRouteImport } from './routes/_authenticated.conta'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
 import { Route as AuthenticatedAppTrabalhosRouteImport } from './routes/_authenticated.app.trabalhos'
+import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated.app.planos'
+import { Route as AuthenticatedAppPerfilRouteImport } from './routes/_authenticated.app.perfil'
+import { Route as AuthenticatedAppMatematicaRouteImport } from './routes/_authenticated.app.matematica'
+import { Route as AuthenticatedAppFerramentasRouteImport } from './routes/_authenticated.app.ferramentas'
+import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
+import { Route as AuthenticatedAppApresentacoesRouteImport } from './routes/_authenticated.app.apresentacoes'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -30,11 +35,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedContaRoute = AuthenticatedContaRouteImport.update({
-  id: '/conta',
-  path: '/conta',
-  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
@@ -52,19 +52,62 @@ const AuthenticatedAppTrabalhosRoute =
     path: '/trabalhos',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppPerfilRoute = AuthenticatedAppPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppMatematicaRoute =
+  AuthenticatedAppMatematicaRouteImport.update({
+    id: '/matematica',
+    path: '/matematica',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppFerramentasRoute =
+  AuthenticatedAppFerramentasRouteImport.update({
+    id: '/ferramentas',
+    path: '/ferramentas',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppChatRoute = AuthenticatedAppChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppApresentacoesRoute =
+  AuthenticatedAppApresentacoesRouteImport.update({
+    id: '/apresentacoes',
+    path: '/apresentacoes',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/conta': typeof AuthenticatedContaRoute
+  '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
+  '/app/chat': typeof AuthenticatedAppChatRoute
+  '/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
+  '/app/matematica': typeof AuthenticatedAppMatematicaRoute
+  '/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/conta': typeof AuthenticatedContaRoute
+  '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
+  '/app/chat': typeof AuthenticatedAppChatRoute
+  '/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
+  '/app/matematica': typeof AuthenticatedAppMatematicaRoute
+  '/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/app/planos': typeof AuthenticatedAppPlanosRoute
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -74,22 +117,53 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/_authenticated/conta': typeof AuthenticatedContaRoute
+  '/_authenticated/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
+  '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
+  '/_authenticated/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
+  '/_authenticated/app/matematica': typeof AuthenticatedAppMatematicaRoute
+  '/_authenticated/app/perfil': typeof AuthenticatedAppPerfilRoute
+  '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
   '/_authenticated/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/app' | '/conta' | '/app/trabalhos' | '/app/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/app'
+    | '/app/apresentacoes'
+    | '/app/chat'
+    | '/app/ferramentas'
+    | '/app/matematica'
+    | '/app/perfil'
+    | '/app/planos'
+    | '/app/trabalhos'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/conta' | '/app/trabalhos' | '/app'
+  to:
+    | '/'
+    | '/login'
+    | '/app/apresentacoes'
+    | '/app/chat'
+    | '/app/ferramentas'
+    | '/app/matematica'
+    | '/app/perfil'
+    | '/app/planos'
+    | '/app/trabalhos'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/app'
-    | '/_authenticated/conta'
+    | '/_authenticated/app/apresentacoes'
+    | '/_authenticated/app/chat'
+    | '/_authenticated/app/ferramentas'
+    | '/_authenticated/app/matematica'
+    | '/_authenticated/app/perfil'
+    | '/_authenticated/app/planos'
     | '/_authenticated/app/trabalhos'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -123,13 +197,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/conta': {
-      id: '/_authenticated/conta'
-      path: '/conta'
-      fullPath: '/conta'
-      preLoaderRoute: typeof AuthenticatedContaRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -151,15 +218,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppTrabalhosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/planos': {
+      id: '/_authenticated/app/planos'
+      path: '/planos'
+      fullPath: '/app/planos'
+      preLoaderRoute: typeof AuthenticatedAppPlanosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/perfil': {
+      id: '/_authenticated/app/perfil'
+      path: '/perfil'
+      fullPath: '/app/perfil'
+      preLoaderRoute: typeof AuthenticatedAppPerfilRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/matematica': {
+      id: '/_authenticated/app/matematica'
+      path: '/matematica'
+      fullPath: '/app/matematica'
+      preLoaderRoute: typeof AuthenticatedAppMatematicaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/ferramentas': {
+      id: '/_authenticated/app/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/app/ferramentas'
+      preLoaderRoute: typeof AuthenticatedAppFerramentasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat': {
+      id: '/_authenticated/app/chat'
+      path: '/chat'
+      fullPath: '/app/chat'
+      preLoaderRoute: typeof AuthenticatedAppChatRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/apresentacoes': {
+      id: '/_authenticated/app/apresentacoes'
+      path: '/apresentacoes'
+      fullPath: '/app/apresentacoes'
+      preLoaderRoute: typeof AuthenticatedAppApresentacoesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppApresentacoesRoute: typeof AuthenticatedAppApresentacoesRoute
+  AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
+  AuthenticatedAppFerramentasRoute: typeof AuthenticatedAppFerramentasRoute
+  AuthenticatedAppMatematicaRoute: typeof AuthenticatedAppMatematicaRoute
+  AuthenticatedAppPerfilRoute: typeof AuthenticatedAppPerfilRoute
+  AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
   AuthenticatedAppTrabalhosRoute: typeof AuthenticatedAppTrabalhosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppApresentacoesRoute: AuthenticatedAppApresentacoesRoute,
+  AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
+  AuthenticatedAppFerramentasRoute: AuthenticatedAppFerramentasRoute,
+  AuthenticatedAppMatematicaRoute: AuthenticatedAppMatematicaRoute,
+  AuthenticatedAppPerfilRoute: AuthenticatedAppPerfilRoute,
+  AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
   AuthenticatedAppTrabalhosRoute: AuthenticatedAppTrabalhosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
@@ -169,12 +290,10 @@ const AuthenticatedAppRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
-  AuthenticatedContaRoute: typeof AuthenticatedContaRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
-  AuthenticatedContaRoute: AuthenticatedContaRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -189,3 +308,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
