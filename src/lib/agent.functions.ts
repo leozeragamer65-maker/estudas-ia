@@ -142,16 +142,18 @@ export const sendMessage = createServerFn({ method: "POST" })
 
     // 9. Atualizar créditos (upsert)
     const novoUsado = usado + 1;
+    const patch =
+      tipoCredito === "matematica" ? { matematica: novoUsado } : { chat: novoUsado };
     if (usoExistente) {
       await supabase
         .from("usage_daily")
-        .update({ [tipoCredito]: novoUsado })
+        .update(patch)
         .eq("user_id", userId)
         .eq("dia", dia);
     } else {
       await supabase
         .from("usage_daily")
-        .insert({ user_id: userId, dia, [tipoCredito]: novoUsado });
+        .insert({ user_id: userId, dia, ...patch });
     }
 
     return {
