@@ -15,7 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-const ITEMS = [
+const ITEMS: Array<{ to: string; label: string; icon: typeof Home; exact?: boolean }> = [
   { to: "/app", label: "Início", icon: Home, exact: true },
   { to: "/app/trabalhos", label: "Trabalho Científico", icon: FileText },
   { to: "/app/matematica", label: "Matemática", icon: Calculator },
@@ -24,7 +24,7 @@ const ITEMS = [
   { to: "/app/ferramentas", label: "Ferramentas", icon: Wrench },
   { to: "/app/planos", label: "Planos", icon: CreditCard },
   { to: "/app/perfil", label: "Perfil", icon: User },
-] as const;
+];
 
 interface Props {
   plano?: string | null;
