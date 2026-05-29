@@ -44,7 +44,7 @@ export const sendMessage = createServerFn({ method: "POST" })
     z.object({
       chatId: z.string().uuid().nullable(),
       texto: z.string().min(1).max(4000),
-      seccao: z.enum(["geral", "trabalho"]).default("geral"),
+      seccao: z.enum(["geral", "trabalho", "matematica"]).default("geral"),
     }),
   )
   .handler(async ({ data, context }) => {
