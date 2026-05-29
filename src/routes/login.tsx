@@ -152,6 +152,15 @@ function LoginPage() {
                     onChange={(e) => setSenha(e.target.value)}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="pw2c">Confirmar senha</Label>
+                  <Input
+                    id="pw2c"
+                    type="password"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                  />
+                </div>
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading ? "A criar…" : "Criar conta grátis"}
                 </Button>
