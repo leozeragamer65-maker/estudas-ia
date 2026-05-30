@@ -1,9 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Sparkles, FileText } from "lucide-react";
+import { useState } from "react";
+import { Check, Sparkles, FileText, BookOpen, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 
 export const Route = createFileRoute("/_authenticated/app/planos")({
