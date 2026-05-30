@@ -40,14 +40,31 @@ const hojeISO = () => new Date().toISOString().slice(0, 10);
 async function chamarAgente(
   agente: Agente,
   chatId: string,
+  userId: string,
   texto: string,
   historico: { role: string; conteudo: string }[],
+  extras: { plano: string; creditos_restantes: number; nivel_academico?: string },
 ): Promise<string> {
   const url = AGENT_URLS[agente];
   const payload =
     agente === "matematica"
-      ? { chat_id: chatId, questao: texto, historico }
-      : { chat_id: chatId, pergunta: texto, mensagem: texto, historico };
+      ? {
+          chat_id: chatId,
+          utilizador_id: userId,
+          questao: texto,
+          historico,
+        }
+      : {
+          chat_id: chatId,
+          utilizador_id: userId,
+          tipo: "chat",
+          mensagem: texto,
+          pergunta: texto,
+          nivel_academico: extras.nivel_academico ?? "geral",
+          plano: extras.plano,
+          creditos_restantes: extras.creditos_restantes,
+          historico,
+        };
 
   const res = await fetch(url, {
     method: "POST",
