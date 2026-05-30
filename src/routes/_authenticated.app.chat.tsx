@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ChatView } from "@/components/ChatView";
 import { Button } from "@/components/ui/button";
 import { listChats, deleteChat } from "@/lib/chat.functions";
-import { useAppCtx } from "./_authenticated.app";
+import { useAppCtx } from "@/lib/app-ctx";
 
 export const Route = createFileRoute("/_authenticated/app/chat")({
   head: () => ({ meta: [{ title: "Chat IA — EstudaIA" }] }),
