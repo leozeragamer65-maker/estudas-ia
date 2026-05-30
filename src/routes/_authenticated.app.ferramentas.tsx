@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Languages, FileText, Wrench } from "lucide-react";
+import { Languages, FileText, Wrench, Quote } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/ferramentas")({
   head: () => ({ meta: [{ title: "Ferramentas — EstudaIA" }] }),
@@ -11,18 +11,24 @@ const TOOLS = [
     icon: Languages,
     title: "Tradutor",
     desc: "Traduz textos entre português, inglês e outras línguas.",
-    soon: true,
+    soon: false,
   },
   {
     icon: FileText,
     title: "Resumir texto",
     desc: "Cola um texto longo e recebe um resumo claro.",
-    soon: true,
+    soon: false,
   },
   {
     icon: Wrench,
     title: "Corrector de português",
     desc: "Melhora ortografia e gramática de qualquer texto.",
+    soon: false,
+  },
+  {
+    icon: Quote,
+    title: "Citações",
+    desc: "Gera citações e referências (APA, ABNT, Harvard) automaticamente.",
     soon: true,
   },
 ];
@@ -33,35 +39,47 @@ function FerramentasPage() {
       <div className="mx-auto max-w-5xl px-5 py-8 md:px-10">
         <h1 className="font-display text-3xl">Ferramentas</h1>
         <p className="mt-1 text-muted-foreground">
-          Pequenos utilitários para o teu dia-a-dia académico.
+          Pequenos utilitários para o teu dia-a-dia académico. As ferramentas activas são
+          executadas pelo agente de resposta básica.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map(({ icon: Icon, title, desc, soon }) => (
-            <div
-              key={title}
-              className="rounded-2xl border border-border bg-card p-5"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar text-sidebar-foreground">
-                <Icon className="h-5 w-5" />
+          {TOOLS.map(({ icon: Icon, title, desc, soon }) => {
+            const card = (
+              <div
+                key={title}
+                className={`rounded-2xl border border-border bg-card p-5 transition-colors ${
+                  soon ? "opacity-70" : "hover:border-primary/40 hover:bg-card/80 cursor-pointer"
+                }`}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar text-sidebar-foreground">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="font-display text-lg">{title}</span>
+                  {soon && (
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                      Em breve
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
               </div>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="font-display text-lg">{title}</span>
-                {soon && (
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-                    Em breve
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
-            </div>
-          ))}
+            );
+            return soon ? (
+              <div key={title}>{card}</div>
+            ) : (
+              <Link key={title} to="/app/chat" className="block">
+                {card}
+              </Link>
+            );
+          })}
         </div>
         <p className="mt-6 text-sm text-muted-foreground">
-          Entretanto podes usar o{" "}
+          Para usar tradução, resumo ou correção, abre o{" "}
           <Link to="/app/chat" className="text-primary underline">
             Chat IA
           </Link>{" "}
-          para traduções e resumos.
+          e pede directamente.
         </p>
       </div>
     </div>
