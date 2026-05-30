@@ -166,8 +166,13 @@ export const sendMessage = createServerFn({ method: "POST" })
     const resposta = await chamarAgente(
       agente,
       chatId!,
+      userId,
       data.texto,
       historico ?? [],
+      {
+        plano,
+        creditos_restantes: Math.max(0, limite - usado),
+      },
     );
 
     // 8. Guardar resposta
