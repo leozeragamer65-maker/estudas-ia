@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { useState, createContext, useContext } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, X } from "lucide-react";
@@ -7,21 +7,21 @@ import { Menu, X } from "lucide-react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { getProfileWithUsage } from "@/lib/chat.functions";
+import { AppCtxContext, useAppCtx } from "@/lib/app-ctx";
 
-interface AppCtx {
-  activeChatId: string | null;
-  setActiveChatId: (id: string | null) => void;
-}
-const Ctx = createContext<AppCtx | null>(null);
-export const useAppCtx = () => {
-  const v = useContext(Ctx);
-  if (!v) throw new Error("useAppCtx fora do provider");
-  return v;
-};
+export { useAppCtx };
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "EstudaIA — Painel" }] }),
   component: AppShell,
+  errorComponent: ({ error }) => (
+    <div className="flex h-screen items-center justify-center p-6 text-center">
+      <div>
+        <h2 className="font-display text-xl">Não foi possível carregar</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      </div>
+    </div>
+  ),
 });
 
 function AppShell() {
@@ -32,7 +32,7 @@ function AppShell() {
   const plano = data?.profile?.plano ?? "free";
 
   return (
-    <Ctx.Provider value={{ activeChatId, setActiveChatId }}>
+    <AppCtxContext.Provider value={{ activeChatId, setActiveChatId }}>
       <div className="flex h-screen overflow-hidden bg-background">
         <div className="hidden md:flex">
           <AppSidebar plano={plano} />
@@ -67,6 +67,6 @@ function AppShell() {
           </div>
         </main>
       </div>
-    </Ctx.Provider>
+    </AppCtxContext.Provider>
   );
 }
