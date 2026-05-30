@@ -72,6 +72,15 @@ function PlanosPage() {
   const fetchProfile = useServerFn(getProfileWithUsage);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
   const profile = data?.profile;
+  const [pendente, setPendente] = useState<{ url: string; nome: string } | null>(null);
+
+  const confirmar = (url: string, nome: string) => setPendente({ url, nome });
+  const abrir = () => {
+    if (pendente) {
+      window.open(pendente.url, "_blank", "noopener,noreferrer");
+      setPendente(null);
+    }
+  };
 
   return (
     <div className="h-full overflow-y-auto bg-background">
@@ -108,14 +117,12 @@ function PlanosPage() {
                 </ul>
                 {pl.checkout ? (
                   <Button
-                    asChild
                     className="mt-5 w-full"
                     variant={pl.destaque ? "default" : "outline"}
                     disabled={actual}
+                    onClick={() => confirmar(pl.checkout!, pl.nome)}
                   >
-                    <a href={pl.checkout} target="_blank" rel="noopener noreferrer">
-                      {actual ? "Plano actual" : `Assinar ${pl.nome}`}
-                    </a>
+                    {actual ? "Plano actual" : `Assinar ${pl.nome}`}
                   </Button>
                 ) : (
                   <Button className="mt-5 w-full" variant="outline" disabled>
@@ -127,23 +134,49 @@ function PlanosPage() {
           })}
         </div>
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <h2 className="font-display text-xl">Trabalho Científico avulso</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Compra um crédito de trabalho científico completo por <strong>50 MT</strong> e
-                submete o pedido na secção "Trabalho Científico". Disponíveis:{" "}
-                <strong>{profile?.trabalhos_disponiveis ?? 0}</strong>.
-              </p>
-              <Button asChild className="mt-4">
-                <a href={TRABALHO_CHECKOUT} target="_blank" rel="noopener noreferrer">
+        <h2 className="mt-10 font-display text-2xl">Trabalho Científico e Relatório reflexivo</h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-display text-lg">Trabalho Científico</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Compra um crédito de trabalho científico completo por <strong>50 MT</strong> e
+                  submete o pedido na secção "Trabalho Científico". Disponíveis:{" "}
+                  <strong>{profile?.trabalhos_disponiveis ?? 0}</strong>.
+                </p>
+                <Button
+                  className="mt-4"
+                  onClick={() => confirmar(TRABALHO_CHECKOUT, "Trabalho Científico")}
+                >
                   Comprar trabalho (50 MT)
-                </a>
-              </Button>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-6 opacity-80">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-lg">Relatório reflexivo</h3>
+                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                    Em breve
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Em breve poderás encomendar relatórios reflexivos académicos prontos a entregar.
+                </p>
+                <Button className="mt-4" variant="outline" disabled>
+                  Em breve
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -153,6 +186,37 @@ function PlanosPage() {
           de telefone com que te registaste no EstudaIA.
         </p>
       </div>
+
+      <AlertDialog open={!!pendente} onOpenChange={(o) => !o && setPendente(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-primary" />
+              Atenção antes de pagar
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-left">
+                <p>
+                  Vais ser redireccionado para o pagamento de <strong>{pendente?.nome}</strong>.
+                </p>
+                <p>
+                  O número de <strong>WhatsApp</strong> e o número usado no{" "}
+                  <strong>pagamento (M-Pesa / e-Mola)</strong> devem ser <strong>os mesmos</strong>{" "}
+                  com que criaste a conta no EstudaIA.
+                </p>
+                <p className="text-destructive">
+                  Caso contrário, <strong>não será possível atribuir os benefícios à tua conta</strong>.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={abrir}>Entendi, continuar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
