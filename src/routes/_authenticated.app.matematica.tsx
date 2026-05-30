@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InlineMath } from "react-katex";
 
 import { ChatView } from "@/components/ChatView";
-import { useAppCtx } from "./_authenticated.app";
+import { useAppCtx } from "@/lib/app-ctx";
 
 export const Route = createFileRoute("/_authenticated/app/matematica")({
   head: () => ({ meta: [{ title: "Matemática — EstudaIA" }] }),
