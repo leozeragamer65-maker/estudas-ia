@@ -1,55 +1,20 @@
-import { Fragment } from "react";
-import { InlineMath, BlockMath } from "react-katex";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
-// Faz parse de blocos $$...$$ e $...$ e renderiza com KaTeX.
-// O resto é texto simples com quebras de linha preservadas.
+// Renderiza markdown (negrito, itálico, listas, código, tabelas) e fórmulas
+// matemáticas em $...$ / $$...$$ via KaTeX.
 export function MessageContent({ text }: { text: string }) {
-  const parts: { type: "text" | "inline" | "block"; value: string }[] = [];
-  let i = 0;
-  while (i < text.length) {
-    const nextBlock = text.indexOf("$$", i);
-    const nextInline = text.indexOf("$", i);
-    let idx = -1;
-    let kind: "inline" | "block" = "inline";
-    if (nextBlock !== -1 && (nextInline === -1 || nextBlock <= nextInline)) {
-      idx = nextBlock;
-      kind = "block";
-    } else if (nextInline !== -1) {
-      idx = nextInline;
-      kind = "inline";
-    }
-    if (idx === -1) {
-      parts.push({ type: "text", value: text.slice(i) });
-      break;
-    }
-    if (idx > i) parts.push({ type: "text", value: text.slice(i, idx) });
-    const open = kind === "block" ? "$$" : "$";
-    const close = text.indexOf(open, idx + open.length);
-    if (close === -1) {
-      parts.push({ type: "text", value: text.slice(i) });
-      break;
-    }
-    const expr = text.slice(idx + open.length, close);
-    parts.push({ type: kind, value: expr });
-    i = close + open.length;
-  }
-
   return (
-    <div className="whitespace-pre-wrap break-words leading-relaxed">
-      {parts.map((p, k) => {
-        if (p.type === "text") return <Fragment key={k}>{p.value}</Fragment>;
-        try {
-          if (p.type === "block")
-            return (
-              <div key={k} className="my-2">
-                <BlockMath math={p.value} />
-              </div>
-            );
-          return <InlineMath key={k} math={p.value} />;
-        } catch {
-          return <code key={k}>{p.value}</code>;
-        }
-      })}
+    <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed prose-p:my-2 prose-pre:my-2 prose-headings:mt-3 prose-headings:mb-1">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   );
 }
