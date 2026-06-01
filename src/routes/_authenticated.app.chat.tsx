@@ -20,8 +20,8 @@ function ChatPage() {
   const removeChat = useServerFn(deleteChat);
   const qc = useQueryClient();
   const { data: chats = [] } = useQuery({
-    queryKey: ["chats"],
-    queryFn: () => fetchChats(),
+    queryKey: ["chats", "geral"],
+    queryFn: () => fetchChats({ data: { seccao: "geral" } }),
   });
 
   const apagar = async (id: string, e: React.MouseEvent) => {
