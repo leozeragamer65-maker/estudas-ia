@@ -13,7 +13,7 @@ const LIMITES: Record<string, Record<string, number>> = {
 const AGENT_URLS = {
   matematica: "https://mestre-matematico-amigo.lovable.app/api/agent/matematica",
   geral: "https://quest-wise-buddy-23.lovable.app/api/public/agent/questoes",
-  trabalho: "https://estudo-moz-assist.lovable.app/api/agent/generate",
+  trabalho: "https://estudo-moz-assist.lovable.app/api/public/agent/generate",
 };
 
 type Agente = "geral" | "matematica" | "trabalho";
