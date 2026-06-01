@@ -25,6 +25,13 @@ function ChatPage() {
     queryFn: () => fetchChats({ data: { seccao: "geral" } }),
   });
 
+  // Garante que ao entrar nesta secção, não fica activo um chat de outra secção
+  useEffect(() => {
+    if (activeChatId && !chats.some((c) => c.id === activeChatId)) {
+      setActiveChatId(null);
+    }
+  }, [chats, activeChatId, setActiveChatId]);
+
   const apagar = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm("Apagar esta conversa?")) return;
