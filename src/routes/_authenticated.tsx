@@ -22,8 +22,11 @@ function AuthLayout() {
         setEstado("ok");
       }
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate({ to: "/login" });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      // Só redireciona em logout explícito; ignora TOKEN_REFRESHED, USER_UPDATED, etc.
+      if (event === "SIGNED_OUT" || (event === "INITIAL_SESSION" && !session)) {
+        navigate({ to: "/login" });
+      }
     });
     return () => {
       alive = false;
