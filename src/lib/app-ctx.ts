@@ -1,5 +1,7 @@
 import { createContext, useContext } from "react";
 
+export type Seccao = "geral" | "trabalho" | "matematica";
+
 export interface AppCtx {
   activeChatId: string | null;
   setActiveChatId: (id: string | null) => void;

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, MessageSquare, Trash2 } from "lucide-react";
@@ -20,9 +21,16 @@ function ChatPage() {
   const removeChat = useServerFn(deleteChat);
   const qc = useQueryClient();
   const { data: chats = [] } = useQuery({
-    queryKey: ["chats"],
-    queryFn: () => fetchChats(),
+    queryKey: ["chats", "geral"],
+    queryFn: () => fetchChats({ data: { seccao: "geral" } }),
   });
+
+  // Garante que ao entrar nesta secção, não fica activo um chat de outra secção
+  useEffect(() => {
+    if (activeChatId && !chats.some((c) => c.id === activeChatId)) {
+      setActiveChatId(null);
+    }
+  }, [chats, activeChatId, setActiveChatId]);
 
   const apagar = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
