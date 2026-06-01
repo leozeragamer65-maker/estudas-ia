@@ -41,6 +41,12 @@ function MatPage() {
     queryFn: () => fetchChats({ data: { seccao: "matematica" } }),
   });
 
+  useEffect(() => {
+    if (activeChatId && !chats.some((c) => c.id === activeChatId)) {
+      setActiveChatId(null);
+    }
+  }, [chats, activeChatId, setActiveChatId]);
+
   const apagar = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm("Apagar esta conversa?")) return;
