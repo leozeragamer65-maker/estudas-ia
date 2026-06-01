@@ -2,18 +2,25 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const listChats = createServerFn({ method: "GET" })
+export const listChats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator(
+    z.object({
+      seccao: z.enum(["geral", "trabalho", "matematica"]).optional(),
+    }).optional(),
+  )
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
+    let q = supabase
       .from("chats")
       .select("id,titulo,seccao,updated_at")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(50);
+    if (data?.seccao) q = q.eq("seccao", data.seccao);
+    const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return rows ?? [];
   });
 
 export const getMessages = createServerFn({ method: "POST" })
