@@ -11,7 +11,7 @@ const LIMITES: Record<string, Record<string, number>> = {
 
 // URLs dos agentes externos (cada um vive no seu projeto Lovable).
 const AGENT_URLS = {
-  matematica: "https://mestre-matematico-amigo.lovable.app/api/public/agent/matematica",
+  matematica: "https://mestre-matematico-amigo.lovable.app/api/agent/matematica",
   geral: "https://quest-wise-buddy-23.lovable.app/api/public/agent/questoes",
   trabalho: "https://estudo-moz-assist.lovable.app/api/public/agent/generate",
 };
