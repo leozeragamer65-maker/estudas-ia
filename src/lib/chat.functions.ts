@@ -2,11 +2,20 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const SECCOES = [
+  "geral",
+  "trabalho",
+  "matematica",
+  "traducao",
+  "resumo",
+  "corretor",
+] as const;
+
 export const listChats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      seccao: z.enum(["geral", "trabalho", "matematica"]).optional(),
+      seccao: z.enum(SECCOES).optional(),
     }).optional(),
   )
   .handler(async ({ data, context }) => {
@@ -111,7 +120,6 @@ export const submeterTrabalho = createServerFn({ method: "POST" })
       .update({ trabalhos_disponiveis: profile.trabalhos_disponiveis - 1 })
       .eq("id", userId);
 
-    // Chamar agente externo para gerar o trabalho (tolerante a falha)
     try {
       await fetch("https://estudo-moz-assist.lovable.app/api/agent/generate", {
         method: "POST",

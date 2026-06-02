@@ -1,6 +1,12 @@
 import { createContext, useContext } from "react";
 
-export type Seccao = "geral" | "trabalho" | "matematica";
+export type Seccao =
+  | "geral"
+  | "trabalho"
+  | "matematica"
+  | "traducao"
+  | "resumo"
+  | "corretor";
 
 export interface AppCtx {
   activeChatId: string | null;

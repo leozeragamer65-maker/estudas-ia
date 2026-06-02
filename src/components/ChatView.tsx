@@ -10,9 +10,11 @@ import { MessageContent } from "./MessageContent";
 import { sendMessage } from "@/lib/agent.functions";
 import { getMessages } from "@/lib/chat.functions";
 
+import type { Seccao } from "@/lib/app-ctx";
+
 interface Props {
   chatId: string | null;
-  seccao: "geral" | "trabalho" | "matematica";
+  seccao: Seccao;
   onChatCreated: (id: string) => void;
   placeholder?: string;
   title?: string;

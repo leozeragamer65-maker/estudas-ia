@@ -2,41 +2,60 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-// Limites diários por plano e tipo (créditos).
+// Limites diários por plano e tipo de crédito.
 const LIMITES: Record<string, Record<string, number>> = {
   free:  { chat: 3,   matematica: 1,  traducao: 3,  resumo: 2,  trabalhos: 0 },
   "75mt":  { chat: 50,  matematica: 15, traducao: 30, resumo: 20, trabalhos: 0 },
   "150mt": { chat: 150, matematica: 50, traducao: 100, resumo: 60, trabalhos: 0 },
 };
 
-// URLs dos agentes externos (cada um vive no seu projeto Lovable).
+// URLs dos agentes externos.
 const AGENT_URLS = {
   matematica: "https://mestre-matematico-amigo.lovable.app/api/agent/matematica",
   geral: "https://quest-wise-buddy-23.lovable.app/api/public/agent/questoes",
   trabalho: "https://estudo-moz-assist.lovable.app/api/public/agent/generate",
 };
 
-type Agente = "geral" | "matematica" | "trabalho";
-export type Seccao = "geral" | "trabalho" | "matematica";
+export type Seccao =
+  | "geral"
+  | "trabalho"
+  | "matematica"
+  | "traducao"
+  | "resumo"
+  | "corretor";
 
-function classificar(texto: string, seccao: Seccao): Agente {
-  if (seccao === "trabalho") return "trabalho";
-  if (seccao === "matematica") return "matematica";
-  const palavras = [
-    "calcular", "resolver", "equação", "equacao", "integral", "derivada",
-    "matriz", "logaritmo", "raiz", "trigonometria", "geometria",
-    "probabilidade", "soma", "dividir", "multiplicar", "percentagem",
-    "fracção", "fracao", "potência", "potencia", "limite", "sistema",
-  ];
-  const t = texto.toLowerCase();
-  if (palavras.some((p) => t.includes(p))) return "matematica";
-  if (/[\d+\-×÷=²√^]/.test(texto) && /\d/.test(texto)) return "matematica";
-  return "geral";
-}
+// Mapa: secção -> { agente externo, tipo de crédito, prefixo de prompt }
+const SECCAO_CFG: Record<
+  Seccao,
+  { agente: keyof typeof AGENT_URLS; credito: keyof (typeof LIMITES)["free"]; prefixo?: string }
+> = {
+  geral:      { agente: "geral",      credito: "chat" },
+  trabalho:   { agente: "trabalho",   credito: "trabalhos" },
+  matematica: { agente: "matematica", credito: "matematica" },
+  traducao:   {
+    agente: "geral",
+    credito: "traducao",
+    prefixo:
+      "Actua como tradutor profissional. Traduz o texto seguinte de forma natural e fiel, preservando o sentido. Se o utilizador não indicar a língua de destino, pergunta. Texto:\n\n",
+  },
+  resumo: {
+    agente: "geral",
+    credito: "resumo",
+    prefixo:
+      "Actua como assistente de estudo. Faz um resumo claro, estruturado por tópicos, das ideias principais do texto seguinte. Texto:\n\n",
+  },
+  corretor: {
+    agente: "geral",
+    credito: "chat",
+    prefixo:
+      "Actua como corrector de português. Corrige ortografia, gramática e estilo do texto seguinte e devolve a versão corrigida. Indica brevemente as principais correcções feitas. Texto:\n\n",
+  },
+};
 
 const hojeISO = () => new Date().toISOString().slice(0, 10);
 
-// Chamar um agente externo. Tenta vários formatos comuns de payload/resposta.
+type Agente = keyof typeof AGENT_URLS;
+
 async function chamarAgente(
   agente: Agente,
   chatId: string,
@@ -48,12 +67,7 @@ async function chamarAgente(
   const url = AGENT_URLS[agente];
   const payload =
     agente === "matematica"
-      ? {
-          chat_id: chatId,
-          utilizador_id: userId,
-          questao: texto,
-          historico,
-        }
+      ? { chat_id: chatId, utilizador_id: userId, questao: texto, historico }
       : {
           chat_id: chatId,
           utilizador_id: userId,
@@ -81,12 +95,7 @@ async function chamarAgente(
   if (ct.includes("application/json")) {
     const j = await res.json();
     return (
-      j.resposta ??
-      j.resultado ??
-      j.answer ??
-      j.message ??
-      j.content ??
-      j.text ??
+      j.resposta ?? j.resultado ?? j.answer ?? j.message ?? j.content ?? j.text ??
       (typeof j === "string" ? j : JSON.stringify(j))
     );
   }
@@ -98,8 +107,10 @@ export const sendMessage = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       chatId: z.string().uuid().nullable(),
-      texto: z.string().min(1).max(4000),
-      seccao: z.enum(["geral", "trabalho", "matematica"]).default("geral"),
+      texto: z.string().min(1).max(8000),
+      seccao: z
+        .enum(["geral", "trabalho", "matematica", "traducao", "resumo", "corretor"])
+        .default("geral"),
     }),
   )
   .handler(async ({ data, context }) => {
@@ -107,15 +118,12 @@ export const sendMessage = createServerFn({ method: "POST" })
 
     // 1. Perfil + plano
     const { data: profile } = await supabase
-      .from("profiles")
-      .select("plano")
-      .eq("id", userId)
-      .single();
+      .from("profiles").select("plano").eq("id", userId).single();
     const plano = profile?.plano ?? "free";
 
-    // 2. Classificar
-    const agente = classificar(data.texto, data.seccao);
-    const tipoCredito = agente === "matematica" ? "matematica" : "chat";
+    // 2. Configuração da secção
+    const cfg = SECCAO_CFG[data.seccao];
+    const tipoCredito = cfg.credito;
 
     // 3. Verificar créditos diários
     const dia = hojeISO();
@@ -125,11 +133,11 @@ export const sendMessage = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .eq("dia", dia)
       .maybeSingle();
-    const usado = (usoExistente?.[tipoCredito] as number | undefined) ?? 0;
+    const usado = ((usoExistente as Record<string, number> | null)?.[tipoCredito]) ?? 0;
     const limite = LIMITES[plano]?.[tipoCredito] ?? 0;
     if (usado >= limite) {
       throw new Error(
-        `Atingiste o limite diário de ${tipoCredito === "matematica" ? "matemática" : "chat"} no plano ${plano.toUpperCase()}. Faz upgrade para continuar.`,
+        `Atingiste o limite diário (${limite}) desta ferramenta no plano ${plano.toUpperCase()}. Faz upgrade para continuar.`,
       );
     }
 
@@ -146,7 +154,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       chatId = novo.id;
     }
 
-    // 5. Guardar mensagem do utilizador
+    // 5. Guardar mensagem do utilizador (texto original, sem prefixo)
     await supabase.from("mensagens").insert({
       chat_id: chatId,
       user_id: userId,
@@ -154,7 +162,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       conteudo: data.texto,
     });
 
-    // 6. Histórico do chat
+    // 6. Histórico
     const { data: historico } = await supabase
       .from("mensagens")
       .select("role,conteudo")
@@ -162,17 +170,16 @@ export const sendMessage = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(40);
 
-    // 7. Chamar agente externo
+    // 7. Texto enviado ao agente (com prefixo da ferramenta se existir)
+    const textoAgente = cfg.prefixo ? cfg.prefixo + data.texto : data.texto;
+
     const resposta = await chamarAgente(
-      agente,
+      cfg.agente,
       chatId!,
       userId,
-      data.texto,
+      textoAgente,
       historico ?? [],
-      {
-        plano,
-        creditos_restantes: Math.max(0, limite - usado),
-      },
+      { plano, creditos_restantes: Math.max(0, limite - usado) },
     );
 
     // 8. Guardar resposta
@@ -184,20 +191,21 @@ export const sendMessage = createServerFn({ method: "POST" })
     });
     await supabase.from("chats").update({ updated_at: new Date().toISOString() }).eq("id", chatId);
 
-    // 9. Atualizar créditos (upsert)
+    // 9. Atualizar créditos
     const novoUsado = usado + 1;
-    const patch =
-      tipoCredito === "matematica" ? { matematica: novoUsado } : { chat: novoUsado };
+    const patch: any = { [tipoCredito]: novoUsado };
     if (usoExistente) {
-      await supabase
+      const { error: errU } = await supabase
         .from("usage_daily")
         .update(patch)
         .eq("user_id", userId)
         .eq("dia", dia);
+      if (errU) console.error("usage_daily update:", errU.message);
     } else {
-      await supabase
+      const { error: errI } = await supabase
         .from("usage_daily")
         .insert({ user_id: userId, dia, ...patch });
+      if (errI) console.error("usage_daily insert:", errI.message);
     }
 
     return {

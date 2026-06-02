@@ -14,11 +14,14 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
+import { Route as AuthenticatedAppTradutorRouteImport } from './routes/_authenticated.app.tradutor'
 import { Route as AuthenticatedAppTrabalhosRouteImport } from './routes/_authenticated.app.trabalhos'
+import { Route as AuthenticatedAppResumoRouteImport } from './routes/_authenticated.app.resumo'
 import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authenticated.app.planos'
 import { Route as AuthenticatedAppPerfilRouteImport } from './routes/_authenticated.app.perfil'
 import { Route as AuthenticatedAppMatematicaRouteImport } from './routes/_authenticated.app.matematica'
 import { Route as AuthenticatedAppFerramentasRouteImport } from './routes/_authenticated.app.ferramentas'
+import { Route as AuthenticatedAppCorretorRouteImport } from './routes/_authenticated.app.corretor'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
 import { Route as AuthenticatedAppApresentacoesRouteImport } from './routes/_authenticated.app.apresentacoes'
 import { Route as ApiPublicWebhookEscalepayRouteImport } from './routes/api/public/webhook.escalepay'
@@ -47,12 +50,23 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppTradutorRoute =
+  AuthenticatedAppTradutorRouteImport.update({
+    id: '/tradutor',
+    path: '/tradutor',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppTrabalhosRoute =
   AuthenticatedAppTrabalhosRouteImport.update({
     id: '/trabalhos',
     path: '/trabalhos',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppResumoRoute = AuthenticatedAppResumoRouteImport.update({
+  id: '/resumo',
+  path: '/resumo',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppPlanosRoute = AuthenticatedAppPlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -73,6 +87,12 @@ const AuthenticatedAppFerramentasRoute =
   AuthenticatedAppFerramentasRouteImport.update({
     id: '/ferramentas',
     path: '/ferramentas',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCorretorRoute =
+  AuthenticatedAppCorretorRouteImport.update({
+    id: '/corretor',
+    path: '/corretor',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppChatRoute = AuthenticatedAppChatRouteImport.update({
@@ -99,11 +119,14 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/app/chat': typeof AuthenticatedAppChatRoute
+  '/app/corretor': typeof AuthenticatedAppCorretorRoute
   '/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
   '/app/matematica': typeof AuthenticatedAppMatematicaRoute
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
+  '/app/resumo': typeof AuthenticatedAppResumoRoute
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
+  '/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
@@ -112,11 +135,14 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/app/chat': typeof AuthenticatedAppChatRoute
+  '/app/corretor': typeof AuthenticatedAppCorretorRoute
   '/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
   '/app/matematica': typeof AuthenticatedAppMatematicaRoute
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/planos': typeof AuthenticatedAppPlanosRoute
+  '/app/resumo': typeof AuthenticatedAppResumoRoute
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
+  '/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
@@ -128,11 +154,14 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
+  '/_authenticated/app/corretor': typeof AuthenticatedAppCorretorRoute
   '/_authenticated/app/ferramentas': typeof AuthenticatedAppFerramentasRoute
   '/_authenticated/app/matematica': typeof AuthenticatedAppMatematicaRoute
   '/_authenticated/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/_authenticated/app/planos': typeof AuthenticatedAppPlanosRoute
+  '/_authenticated/app/resumo': typeof AuthenticatedAppResumoRoute
   '/_authenticated/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
+  '/_authenticated/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
@@ -144,11 +173,14 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/apresentacoes'
     | '/app/chat'
+    | '/app/corretor'
     | '/app/ferramentas'
     | '/app/matematica'
     | '/app/perfil'
     | '/app/planos'
+    | '/app/resumo'
     | '/app/trabalhos'
+    | '/app/tradutor'
     | '/app/'
     | '/api/public/webhook/escalepay'
   fileRoutesByTo: FileRoutesByTo
@@ -157,11 +189,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/apresentacoes'
     | '/app/chat'
+    | '/app/corretor'
     | '/app/ferramentas'
     | '/app/matematica'
     | '/app/perfil'
     | '/app/planos'
+    | '/app/resumo'
     | '/app/trabalhos'
+    | '/app/tradutor'
     | '/app'
     | '/api/public/webhook/escalepay'
   id:
@@ -172,11 +207,14 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/app/apresentacoes'
     | '/_authenticated/app/chat'
+    | '/_authenticated/app/corretor'
     | '/_authenticated/app/ferramentas'
     | '/_authenticated/app/matematica'
     | '/_authenticated/app/perfil'
     | '/_authenticated/app/planos'
+    | '/_authenticated/app/resumo'
     | '/_authenticated/app/trabalhos'
+    | '/_authenticated/app/tradutor'
     | '/_authenticated/app/'
     | '/api/public/webhook/escalepay'
   fileRoutesById: FileRoutesById
@@ -225,11 +263,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/tradutor': {
+      id: '/_authenticated/app/tradutor'
+      path: '/tradutor'
+      fullPath: '/app/tradutor'
+      preLoaderRoute: typeof AuthenticatedAppTradutorRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/trabalhos': {
       id: '/_authenticated/app/trabalhos'
       path: '/trabalhos'
       fullPath: '/app/trabalhos'
       preLoaderRoute: typeof AuthenticatedAppTrabalhosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/resumo': {
+      id: '/_authenticated/app/resumo'
+      path: '/resumo'
+      fullPath: '/app/resumo'
+      preLoaderRoute: typeof AuthenticatedAppResumoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/planos': {
@@ -260,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFerramentasRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/corretor': {
+      id: '/_authenticated/app/corretor'
+      path: '/corretor'
+      fullPath: '/app/corretor'
+      preLoaderRoute: typeof AuthenticatedAppCorretorRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/chat': {
       id: '/_authenticated/app/chat'
       path: '/chat'
@@ -287,22 +346,28 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppApresentacoesRoute: typeof AuthenticatedAppApresentacoesRoute
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
+  AuthenticatedAppCorretorRoute: typeof AuthenticatedAppCorretorRoute
   AuthenticatedAppFerramentasRoute: typeof AuthenticatedAppFerramentasRoute
   AuthenticatedAppMatematicaRoute: typeof AuthenticatedAppMatematicaRoute
   AuthenticatedAppPerfilRoute: typeof AuthenticatedAppPerfilRoute
   AuthenticatedAppPlanosRoute: typeof AuthenticatedAppPlanosRoute
+  AuthenticatedAppResumoRoute: typeof AuthenticatedAppResumoRoute
   AuthenticatedAppTrabalhosRoute: typeof AuthenticatedAppTrabalhosRoute
+  AuthenticatedAppTradutorRoute: typeof AuthenticatedAppTradutorRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppApresentacoesRoute: AuthenticatedAppApresentacoesRoute,
   AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
+  AuthenticatedAppCorretorRoute: AuthenticatedAppCorretorRoute,
   AuthenticatedAppFerramentasRoute: AuthenticatedAppFerramentasRoute,
   AuthenticatedAppMatematicaRoute: AuthenticatedAppMatematicaRoute,
   AuthenticatedAppPerfilRoute: AuthenticatedAppPerfilRoute,
   AuthenticatedAppPlanosRoute: AuthenticatedAppPlanosRoute,
+  AuthenticatedAppResumoRoute: AuthenticatedAppResumoRoute,
   AuthenticatedAppTrabalhosRoute: AuthenticatedAppTrabalhosRoute,
+  AuthenticatedAppTradutorRoute: AuthenticatedAppTradutorRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
