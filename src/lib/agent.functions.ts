@@ -133,7 +133,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .eq("dia", dia)
       .maybeSingle();
-    const usado = (usoExistente?.[tipoCredito] as number | undefined) ?? 0;
+    const usado = ((usoExistente as Record<string, number> | null)?.[tipoCredito]) ?? 0;
     const limite = LIMITES[plano]?.[tipoCredito] ?? 0;
     if (usado >= limite) {
       throw new Error(
@@ -193,7 +193,7 @@ export const sendMessage = createServerFn({ method: "POST" })
 
     // 9. Atualizar créditos
     const novoUsado = usado + 1;
-    const patch = { [tipoCredito]: novoUsado } as Record<string, number>;
+    const patch: any = { [tipoCredito]: novoUsado };
     if (usoExistente) {
       const { error: errU } = await supabase
         .from("usage_daily")
