@@ -1,0 +1,2 @@
+ALTER TABLE public.chats DROP CONSTRAINT IF EXISTS chats_seccao_check;
+ALTER TABLE public.chats ADD CONSTRAINT chats_seccao_check CHECK (seccao = ANY (ARRAY['geral'::text, 'trabalho'::text, 'matematica'::text]));
