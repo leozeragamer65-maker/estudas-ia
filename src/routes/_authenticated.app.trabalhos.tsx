@@ -209,6 +209,18 @@ function TrabalhosPage() {
             <Campo label="Cidade *"><Input value={f.cidade} onChange={(e)=>upd("cidade", e.target.value)}/></Campo>
           </Bloco>
 
+          <Bloco titulo="Instruções extra (opcional)">
+            <Campo label="Notas adicionais para o agente" className="md:col-span-3">
+              <Textarea
+                rows={3}
+                value={f.instrucoes_extra}
+                onChange={(e) => upd("instrucoes_extra", e.target.value)}
+                placeholder="Ex: incluir capítulo sobre… focar em…"
+              />
+            </Campo>
+          </Bloco>
+
+
           <Bloco titulo="Fonte do conteúdo">
             <div className="md:col-span-3 flex flex-col gap-3 sm:flex-row">
               <button
