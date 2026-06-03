@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -76,16 +76,7 @@ export function ChatView({ chatId, seccao, onChatCreated, placeholder, title }: 
             </div>
           )}
           {mensagens.map((m) => (
-            <div
-              key={m.id}
-              className={
-                m.role === "user"
-                  ? "ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-primary-foreground"
-                  : "mr-auto max-w-[90%] rounded-2xl rounded-bl-sm bg-card px-4 py-3 text-card-foreground shadow-sm"
-              }
-            >
-              <MessageContent text={m.conteudo} />
-            </div>
+            <MessageBubble key={m.id} role={m.role} conteudo={m.conteudo} />
           ))}
           {enviando && (
             <div className="mr-auto flex max-w-[85%] items-center gap-2 rounded-2xl rounded-bl-sm bg-card px-4 py-3 text-muted-foreground shadow-sm">

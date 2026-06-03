@@ -75,8 +75,10 @@ export const getProfileWithUsage = createServerFn({ method: "GET" })
         .eq("dia", dia)
         .maybeSingle(),
     ]);
+    const isAdmin = (profile as any)?.telefone === "861403004";
     return {
       profile,
+      isAdmin,
       uso: uso ?? { chat: 0, matematica: 0, traducao: 0, resumo: 0, trabalhos: 0 },
     };
   });
