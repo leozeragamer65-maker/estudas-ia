@@ -48,6 +48,7 @@ type Anexo = { path: string; nome: string; tamanho: number };
 
 function TrabalhosPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const fetchProfile = useServerFn(getProfileWithUsage);
   const fetchTrabs = useServerFn(listMyTrabalhos);
   const sign = useServerFn(signAnexoUpload);
@@ -66,6 +67,7 @@ function TrabalhosPage() {
     tema: "", nivel_academico: "Médio" as "Médio" | "Superior",
     paginas: 8, formato_citacao: "APA" as "APA" | "ABNT" | "Vancouver",
     mes: MESES[new Date().getMonth()], ano: ANO_ACTUAL, cidade: "",
+    instrucoes_extra: "",
   });
   const [tipoFonte, setTipoFonte] = useState<"internet" | "anexo">("internet");
   const [anexos, setAnexos] = useState<Anexo[]>([]);
