@@ -118,14 +118,15 @@ function TrabalhosPage() {
     setGerando(true);
     try {
       await create({ data: { dados: f, tipo_fonte: tipoFonte, anexos } });
-      toast.success(
-        tipoFonte === "internet"
-          ? "Trabalho enviado para geração ✅"
-          : "Pedido enviado ao administrador. Prazo até 6h.",
-      );
+      if (tipoFonte === "internet") {
+        toast.success("A gerar o teu trabalho... Isto pode demorar alguns minutos.");
+      } else {
+        toast.success("Pedido enviado ao administrador. Prazo até 6h.");
+      }
       setAnexos([]);
       qc.invalidateQueries({ queryKey: ["trabalhos"] });
       qc.invalidateQueries({ queryKey: ["profile-usage"] });
+      navigate({ to: "/app" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao enviar");
     } finally { setGerando(false); }
