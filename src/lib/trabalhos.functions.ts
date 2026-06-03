@@ -25,6 +25,8 @@ const dadosSchema = z.object({
   mes: z.string().min(2).max(20),
   ano: z.number().int().min(2024).max(2100),
   cidade: z.string().min(2).max(120),
+  // Extra
+  instrucoes_extra: z.string().max(2000).optional().default(""),
 });
 
 export type DadosTrabalho = z.infer<typeof dadosSchema>;
