@@ -30,12 +30,13 @@ function AppShell() {
   const fetchProfile = useServerFn(getProfileWithUsage);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
   const plano = data?.profile?.plano ?? "free";
+  const isAdmin = !!data?.isAdmin;
 
   return (
     <AppCtxContext.Provider value={{ activeChatId, setActiveChatId }}>
       <div className="flex h-screen overflow-hidden bg-background">
         <div className="hidden md:flex">
-          <AppSidebar plano={plano} />
+          <AppSidebar plano={plano} isAdmin={isAdmin} />
         </div>
 
         {mobileOpen && (
@@ -45,7 +46,7 @@ function AppShell() {
               onClick={() => setMobileOpen(false)}
             />
             <div className="relative z-50">
-              <AppSidebar plano={plano} onNavigate={() => setMobileOpen(false)} />
+              <AppSidebar plano={plano} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
             </div>
           </div>
         )}

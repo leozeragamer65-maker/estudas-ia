@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppFerramentasRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppCorretorRouteImport } from './routes/_authenticated.app.corretor'
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
 import { Route as AuthenticatedAppApresentacoesRouteImport } from './routes/_authenticated.app.apresentacoes'
+import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated.app.admin'
 import { Route as ApiPublicWebhookEscalepayRouteImport } from './routes/api/public/webhook.escalepay'
 
 const LoginRoute = LoginRouteImport.update({
@@ -106,6 +107,11 @@ const AuthenticatedAppApresentacoesRoute =
     path: '/apresentacoes',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAdminRoute = AuthenticatedAppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const ApiPublicWebhookEscalepayRoute =
   ApiPublicWebhookEscalepayRouteImport.update({
     id: '/api/public/webhook/escalepay',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/corretor': typeof AuthenticatedAppCorretorRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/app/admin': typeof AuthenticatedAppAdminRoute
   '/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/app/chat': typeof AuthenticatedAppChatRoute
   '/app/corretor': typeof AuthenticatedAppCorretorRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/admin': typeof AuthenticatedAppAdminRoute
   '/_authenticated/app/apresentacoes': typeof AuthenticatedAppApresentacoesRoute
   '/_authenticated/app/chat': typeof AuthenticatedAppChatRoute
   '/_authenticated/app/corretor': typeof AuthenticatedAppCorretorRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/app'
+    | '/app/admin'
     | '/app/apresentacoes'
     | '/app/chat'
     | '/app/corretor'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/app/admin'
     | '/app/apresentacoes'
     | '/app/chat'
     | '/app/corretor'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/_authenticated/app'
+    | '/_authenticated/app/admin'
     | '/_authenticated/app/apresentacoes'
     | '/_authenticated/app/chat'
     | '/_authenticated/app/corretor'
@@ -333,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppApresentacoesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/admin': {
+      id: '/_authenticated/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AuthenticatedAppAdminRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/api/public/webhook/escalepay': {
       id: '/api/public/webhook/escalepay'
       path: '/api/public/webhook/escalepay'
@@ -344,6 +363,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAdminRoute: typeof AuthenticatedAppAdminRoute
   AuthenticatedAppApresentacoesRoute: typeof AuthenticatedAppApresentacoesRoute
   AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRoute
   AuthenticatedAppCorretorRoute: typeof AuthenticatedAppCorretorRoute
@@ -358,6 +378,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAdminRoute: AuthenticatedAppAdminRoute,
   AuthenticatedAppApresentacoesRoute: AuthenticatedAppApresentacoesRoute,
   AuthenticatedAppChatRoute: AuthenticatedAppChatRoute,
   AuthenticatedAppCorretorRoute: AuthenticatedAppCorretorRoute,
@@ -395,3 +416,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
