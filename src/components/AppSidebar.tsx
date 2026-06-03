@@ -10,6 +10,7 @@ import {
   User,
   LogOut,
   GraduationCap,
+  ShieldCheck,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -28,11 +29,15 @@ const ITEMS: Array<{ to: string; label: string; icon: typeof Home; exact?: boole
 
 interface Props {
   plano?: string | null;
+  isAdmin?: boolean;
   onNavigate?: () => void;
 }
 
-export function AppSidebar({ plano, onNavigate }: Props) {
+export function AppSidebar({ plano, isAdmin, onNavigate }: Props) {
   const navigate = useNavigate();
+  const items = isAdmin
+    ? [...ITEMS, { to: "/app/admin", label: "Painel ADM", icon: ShieldCheck }]
+    : ITEMS;
 
   const sair = async () => {
     await supabase.auth.signOut();
@@ -49,7 +54,7 @@ export function AppSidebar({ plano, onNavigate }: Props) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4">
-        {ITEMS.map(({ to, label, icon: Icon, exact }) => (
+        {items.map(({ to, label, icon: Icon, exact }) => (
           <Link
             key={to}
             to={to as "/app"}

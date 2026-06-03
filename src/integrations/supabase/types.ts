@@ -135,6 +135,7 @@ export type Database = {
       }
       trabalhos: {
         Row: {
+          anexos: Json
           chat_id: string | null
           created_at: string
           dados_formulario: Json
@@ -142,9 +143,12 @@ export type Database = {
           ficheiro_url: string | null
           id: string
           status: string
+          tipo_fonte: string
+          titulo: string | null
           user_id: string
         }
         Insert: {
+          anexos?: Json
           chat_id?: string | null
           created_at?: string
           dados_formulario?: Json
@@ -152,9 +156,12 @@ export type Database = {
           ficheiro_url?: string | null
           id?: string
           status?: string
+          tipo_fonte?: string
+          titulo?: string | null
           user_id: string
         }
         Update: {
+          anexos?: Json
           chat_id?: string | null
           created_at?: string
           dados_formulario?: Json
@@ -162,6 +169,8 @@ export type Database = {
           ficheiro_url?: string | null
           id?: string
           status?: string
+          tipo_fonte?: string
+          titulo?: string | null
           user_id?: string
         }
         Relationships: [
@@ -272,7 +281,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
