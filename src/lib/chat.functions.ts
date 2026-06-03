@@ -76,11 +76,14 @@ export const getProfileWithUsage = createServerFn({ method: "GET" })
         .maybeSingle(),
     ]);
     const isAdmin = (profile as any)?.telefone === "861403004";
-    return {
-      profile,
-      isAdmin,
-      uso: uso ?? { chat: 0, matematica: 0, traducao: 0, resumo: 0, trabalhos: 0 },
-    };
+    const usoSafe = uso ?? { chat: 0, matematica: 0, traducao: 0, resumo: 0, trabalhos: 0 };
+    // Admin tem 3 trabalhos grátis/dia; sobrepõe trabalhos_disponiveis mostrado na UI
+    const profileOut = profile
+      ? isAdmin
+        ? { ...profile, trabalhos_disponiveis: Math.max(0, 3 - (usoSafe.trabalhos ?? 0)) }
+        : profile
+      : profile;
+    return { profile: profileOut, isAdmin, uso: usoSafe };
   });
 
 export const submeterTrabalho = createServerFn({ method: "POST" })
