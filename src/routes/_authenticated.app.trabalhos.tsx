@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,6 +48,7 @@ type Anexo = { path: string; nome: string; tamanho: number };
 
 function TrabalhosPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const fetchProfile = useServerFn(getProfileWithUsage);
   const fetchTrabs = useServerFn(listMyTrabalhos);
   const sign = useServerFn(signAnexoUpload);
@@ -66,6 +67,7 @@ function TrabalhosPage() {
     tema: "", nivel_academico: "Médio" as "Médio" | "Superior",
     paginas: 8, formato_citacao: "APA" as "APA" | "ABNT" | "Vancouver",
     mes: MESES[new Date().getMonth()], ano: ANO_ACTUAL, cidade: "",
+    instrucoes_extra: "",
   });
   const [tipoFonte, setTipoFonte] = useState<"internet" | "anexo">("internet");
   const [anexos, setAnexos] = useState<Anexo[]>([]);
@@ -116,14 +118,15 @@ function TrabalhosPage() {
     setGerando(true);
     try {
       await create({ data: { dados: f, tipo_fonte: tipoFonte, anexos } });
-      toast.success(
-        tipoFonte === "internet"
-          ? "Trabalho enviado para geração ✅"
-          : "Pedido enviado ao administrador. Prazo até 6h.",
-      );
+      if (tipoFonte === "internet") {
+        toast.success("A gerar o teu trabalho... Isto pode demorar alguns minutos.");
+      } else {
+        toast.success("Pedido enviado ao administrador. Prazo até 6h.");
+      }
       setAnexos([]);
       qc.invalidateQueries({ queryKey: ["trabalhos"] });
       qc.invalidateQueries({ queryKey: ["profile-usage"] });
+      navigate({ to: "/app" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao enviar");
     } finally { setGerando(false); }
@@ -205,6 +208,18 @@ function TrabalhosPage() {
             </Campo>
             <Campo label="Cidade *"><Input value={f.cidade} onChange={(e)=>upd("cidade", e.target.value)}/></Campo>
           </Bloco>
+
+          <Bloco titulo="Instruções extra (opcional)">
+            <Campo label="Notas adicionais para o agente" className="md:col-span-3">
+              <Textarea
+                rows={3}
+                value={f.instrucoes_extra}
+                onChange={(e) => upd("instrucoes_extra", e.target.value)}
+                placeholder="Ex: incluir capítulo sobre… focar em…"
+              />
+            </Campo>
+          </Bloco>
+
 
           <Bloco titulo="Fonte do conteúdo">
             <div className="md:col-span-3 flex flex-col gap-3 sm:flex-row">

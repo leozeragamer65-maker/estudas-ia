@@ -25,6 +25,8 @@ const dadosSchema = z.object({
   mes: z.string().min(2).max(20),
   ano: z.number().int().min(2024).max(2100),
   cidade: z.string().min(2).max(120),
+  // Extra
+  instrucoes_extra: z.string().max(2000).optional().default(""),
 });
 
 export type DadosTrabalho = z.infer<typeof dadosSchema>;
@@ -47,16 +49,34 @@ export const createTrabalho = createServerFn({ method: "POST" })
     if (data.tipo_fonte === "anexo" && data.anexos.length === 0)
       throw new Error("Anexa pelo menos um ficheiro (PDF/Word/Excel).");
 
-    // Verificar trabalhos disponíveis
+    // Verificar trabalhos disponíveis (admin tem 3 grátis/dia)
     const { data: profile } = await supabase
       .from("profiles")
-      .select("trabalhos_disponiveis")
+      .select("trabalhos_disponiveis, telefone")
       .eq("id", userId)
       .single();
-    if (!profile || profile.trabalhos_disponiveis <= 0) {
-      throw new Error(
-        "Não tens trabalhos disponíveis. Compra 1 trabalho científico (50 MT) na página de Planos.",
-      );
+    if (!profile) throw new Error("Perfil não encontrado.");
+
+    const isAdmin = profile.telefone === ADMIN_PHONE;
+    const dia = new Date().toISOString().slice(0, 10);
+
+    if (isAdmin) {
+      const { data: uso } = await supabase
+        .from("usage_daily")
+        .select("trabalhos")
+        .eq("user_id", userId)
+        .eq("dia", dia)
+        .maybeSingle();
+      const usadoHoje = uso?.trabalhos ?? 0;
+      if (usadoHoje >= 3) {
+        throw new Error("Limite diário de 3 trabalhos grátis atingido (admin).");
+      }
+    } else {
+      if (profile.trabalhos_disponiveis <= 0) {
+        throw new Error(
+          "Não tens trabalhos disponíveis. Compra 1 trabalho científico (50 MT) na página de Planos.",
+        );
+      }
     }
 
     // Cria trabalho com status inicial conforme tipo
@@ -75,22 +95,58 @@ export const createTrabalho = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Desconta 1 trabalho disponível
-    await supabase
-      .from("profiles")
-      .update({ trabalhos_disponiveis: profile.trabalhos_disponiveis - 1 })
-      .eq("id", userId);
+    // Desconta: admin → usage_daily; restante → profiles.trabalhos_disponiveis
+    if (isAdmin) {
+      const { data: uso } = await supabase
+        .from("usage_daily")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("dia", dia)
+        .maybeSingle();
+      const novo = (uso?.trabalhos ?? 0) + 1;
+      if (uso) {
+        await supabase
+          .from("usage_daily")
+          .update({ trabalhos: novo })
+          .eq("user_id", userId)
+          .eq("dia", dia);
+      } else {
+        await supabase
+          .from("usage_daily")
+          .insert({ user_id: userId, dia, trabalhos: novo });
+      }
+    } else {
+      await supabase
+        .from("profiles")
+        .update({ trabalhos_disponiveis: profile.trabalhos_disponiveis - 1 })
+        .eq("id", userId);
+    }
 
-    // Internet: dispara o agente
+    // Internet: dispara o agente com o payload combinado
     if (data.tipo_fonte === "internet") {
       try {
         await fetch("https://estudo-moz-assist.lovable.app/api/agent/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            trabalho_id: trabalho.id,
-            user_id: userId,
-            ...data.dados,
+            chat_id: trabalho.id,
+            utilizador_id: userId,
+            nome_aluno: data.dados.nome_completo,
+            turma: data.dados.turma,
+            numero_aluno: data.dados.numero_aluno,
+            instituicao: data.dados.escola,
+            curso_disciplina: data.dados.curso,
+            nome_professor: data.dados.orientador_nome,
+            cargo_professor: data.dados.orientador_cargo,
+            tema: data.dados.tema,
+            nivel_academico: data.dados.nivel_academico,
+            numero_paginas: data.dados.paginas,
+            formato_citacao: data.dados.formato_citacao,
+            mes: data.dados.mes,
+            ano: data.dados.ano,
+            cidade: data.dados.cidade,
+            fonte: "internet",
+            instrucoes_extra: data.dados.instrucoes_extra ?? "",
           }),
         });
       } catch (e) {
@@ -102,13 +158,12 @@ export const createTrabalho = createServerFn({ method: "POST" })
         corpo: `O teu trabalho "${data.dados.tema}" foi enviado para geração. Vais ser notificado quando estiver pronto.`,
       });
     } else {
-      // Anexo: notifica o aluno + notifica o admin
+      // Anexo: notifica o aluno (admin verá no painel)
       await supabase.from("notifications").insert({
         user_id: userId,
         titulo: "Pedido recebido (manual)",
         corpo: `O teu pedido "${data.dados.tema}" foi enviado ao administrador. Prazo máximo: 6 horas.`,
       });
-      // Admin notification (via service role: usa update direct? Aqui não temos admin client; o admin verá no painel)
     }
 
     return { ok: true, trabalho_id: trabalho.id };
