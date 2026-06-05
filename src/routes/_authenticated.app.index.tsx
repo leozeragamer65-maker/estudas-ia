@@ -106,6 +106,16 @@ function DashboardPage() {
           </div>
         </div>
 
+        {quizzes.length > 0 && (
+          <>
+            <h2 className="mt-10 font-display text-2xl">Quiz diário 🧠</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Dois novos desafios todos os dias.</p>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {quizzes.map((q: any) => <QuizCard key={q.id} quiz={q} />)}
+            </div>
+          </>
+        )}
+
         <h2 className="mt-10 font-display text-2xl">Acesso rápido</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <QuickCard
