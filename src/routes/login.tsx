@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { phoneToEmail, normalizarTelefone, telefoneValido } from "@/lib/auth";
+import { lookupTelefoneByGoogleEmail } from "@/lib/google-link.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -22,12 +24,14 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [identificador, setIdentificador] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const lookup = useServerFn(lookupTelefoneByGoogleEmail);
 
-  const validar = () => {
+  const validarRegisto = () => {
     if (!telefoneValido(telefone)) {
       toast.error("Telefone inválido. Exemplo: 841234567");
       return false;
@@ -41,15 +45,46 @@ function LoginPage() {
 
   const entrar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validar()) return;
+    if (senha.length < 6) {
+      toast.error("Senha tem de ter pelo menos 6 caracteres.");
+      return;
+    }
+    const id = identificador.trim();
+    if (!id) {
+      toast.error("Indica o teu telefone ou email Google.");
+      return;
+    }
     setLoading(true);
+    let emailAuth: string | null = null;
+    if (id.includes("@")) {
+      try {
+        const res = await lookup({ data: { email: id.toLowerCase() } });
+        if (!res?.telefone) {
+          setLoading(false);
+          toast.error("Email Google não está associado a nenhuma conta.");
+          return;
+        }
+        emailAuth = phoneToEmail(res.telefone);
+      } catch {
+        setLoading(false);
+        toast.error("Falha ao validar email. Tenta novamente.");
+        return;
+      }
+    } else {
+      if (!telefoneValido(id)) {
+        setLoading(false);
+        toast.error("Telefone inválido.");
+        return;
+      }
+      emailAuth = phoneToEmail(id);
+    }
     const { error } = await supabase.auth.signInWithPassword({
-      email: phoneToEmail(telefone),
+      email: emailAuth!,
       password: senha,
     });
     setLoading(false);
     if (error) {
-      toast.error("Número ou senha incorrectos.");
+      toast.error("Credenciais incorrectas.");
       return;
     }
     navigate({ to: "/app" });
@@ -57,7 +92,7 @@ function LoginPage() {
 
   const registar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validar()) return;
+    if (!validarRegisto()) return;
     if (nome.trim().length < 2) {
       toast.error("Diz-nos o teu nome.");
       return;
@@ -85,6 +120,7 @@ function LoginPage() {
     navigate({ to: "/app" });
   };
 
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
@@ -103,13 +139,12 @@ function LoginPage() {
             <TabsContent value="entrar">
               <form onSubmit={entrar} className="mt-4 space-y-3">
                 <div>
-                  <Label htmlFor="tel1">Telefone</Label>
+                  <Label htmlFor="ident">Telefone ou email Google</Label>
                   <Input
-                    id="tel1"
-                    inputMode="tel"
-                    placeholder="841234567"
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
+                    id="ident"
+                    placeholder="841234567 ou nome@gmail.com"
+                    value={identificador}
+                    onChange={(e) => setIdentificador(e.target.value)}
                   />
                 </div>
                 <div>

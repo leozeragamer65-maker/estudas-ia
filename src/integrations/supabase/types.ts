@@ -106,6 +106,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          google_email: string | null
           id: string
           nome: string
           plano: string
@@ -115,6 +116,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          google_email?: string | null
           id: string
           nome?: string
           plano?: string
@@ -124,6 +126,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          google_email?: string | null
           id?: string
           nome?: string
           plano?: string
