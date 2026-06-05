@@ -24,12 +24,14 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [identificador, setIdentificador] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const lookup = useServerFn(lookupTelefoneByGoogleEmail);
 
-  const validar = () => {
+  const validarRegisto = () => {
     if (!telefoneValido(telefone)) {
       toast.error("Telefone inválido. Exemplo: 841234567");
       return false;
@@ -43,15 +45,46 @@ function LoginPage() {
 
   const entrar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validar()) return;
+    if (senha.length < 6) {
+      toast.error("Senha tem de ter pelo menos 6 caracteres.");
+      return;
+    }
+    const id = identificador.trim();
+    if (!id) {
+      toast.error("Indica o teu telefone ou email Google.");
+      return;
+    }
     setLoading(true);
+    let emailAuth: string | null = null;
+    if (id.includes("@")) {
+      try {
+        const res = await lookup({ data: { email: id.toLowerCase() } });
+        if (!res?.telefone) {
+          setLoading(false);
+          toast.error("Email Google não está associado a nenhuma conta.");
+          return;
+        }
+        emailAuth = phoneToEmail(res.telefone);
+      } catch {
+        setLoading(false);
+        toast.error("Falha ao validar email. Tenta novamente.");
+        return;
+      }
+    } else {
+      if (!telefoneValido(id)) {
+        setLoading(false);
+        toast.error("Telefone inválido.");
+        return;
+      }
+      emailAuth = phoneToEmail(id);
+    }
     const { error } = await supabase.auth.signInWithPassword({
-      email: phoneToEmail(telefone),
+      email: emailAuth!,
       password: senha,
     });
     setLoading(false);
     if (error) {
-      toast.error("Número ou senha incorrectos.");
+      toast.error("Credenciais incorrectas.");
       return;
     }
     navigate({ to: "/app" });
@@ -59,7 +92,7 @@ function LoginPage() {
 
   const registar = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validar()) return;
+    if (!validarRegisto()) return;
     if (nome.trim().length < 2) {
       toast.error("Diz-nos o teu nome.");
       return;
@@ -86,6 +119,7 @@ function LoginPage() {
     toast.success("Bem-vindo ao EstudaIA! 🎓");
     navigate({ to: "/app" });
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
