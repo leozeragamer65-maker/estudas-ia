@@ -105,13 +105,12 @@ function LoginPage() {
             <TabsContent value="entrar">
               <form onSubmit={entrar} className="mt-4 space-y-3">
                 <div>
-                  <Label htmlFor="tel1">Telefone</Label>
+                  <Label htmlFor="ident">Telefone ou email Google</Label>
                   <Input
-                    id="tel1"
-                    inputMode="tel"
-                    placeholder="841234567"
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
+                    id="ident"
+                    placeholder="841234567 ou nome@gmail.com"
+                    value={identificador}
+                    onChange={(e) => setIdentificador(e.target.value)}
                   />
                 </div>
                 <div>
