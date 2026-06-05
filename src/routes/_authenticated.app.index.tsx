@@ -12,6 +12,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { getProfileWithUsage } from "@/lib/chat.functions";
+import { getDailyQuizzes } from "@/lib/quiz.functions";
+import { QuizCard } from "@/components/QuizCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({ meta: [{ title: "Início — EstudaIA" }] }),
@@ -22,7 +24,9 @@ const LIMITES_TOTAL: Record<string, number> = { free: 5, "75mt": 80, "150mt": 25
 
 function DashboardPage() {
   const fetchProfile = useServerFn(getProfileWithUsage);
+  const fetchQuizzes = useServerFn(getDailyQuizzes);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
+  const { data: quizzes = [] } = useQuery({ queryKey: ["daily-quizzes"], queryFn: () => fetchQuizzes() });
   const profile = data?.profile;
   const uso = data?.uso;
   const plano = profile?.plano ?? "free";
@@ -101,6 +105,16 @@ function DashboardPage() {
             </Button>
           </div>
         </div>
+
+        {quizzes.length > 0 && (
+          <>
+            <h2 className="mt-10 font-display text-2xl">Quiz diário 🧠</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Dois novos desafios todos os dias.</p>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {quizzes.map((q: any) => <QuizCard key={q.id} quiz={q} />)}
+            </div>
+          </>
+        )}
 
         <h2 className="mt-10 font-display text-2xl">Acesso rápido</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
