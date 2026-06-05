@@ -24,7 +24,9 @@ const LIMITES_TOTAL: Record<string, number> = { free: 5, "75mt": 80, "150mt": 25
 
 function DashboardPage() {
   const fetchProfile = useServerFn(getProfileWithUsage);
+  const fetchQuizzes = useServerFn(getDailyQuizzes);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
+  const { data: quizzes = [] } = useQuery({ queryKey: ["daily-quizzes"], queryFn: () => fetchQuizzes() });
   const profile = data?.profile;
   const uso = data?.uso;
   const plano = profile?.plano ?? "free";
