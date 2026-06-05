@@ -29,6 +29,8 @@ function AdminPage() {
   const sign = useServerFn(adminSignUpload);
   const entregar = useServerFn(adminEntregar);
   const dl = useServerFn(signDownload);
+  const listAv = useServerFn(adminListAvaliacoes);
+  const listCt = useServerFn(adminListContatos);
   const qc = useQueryClient();
 
   const { data: prof, isLoading: lp } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
@@ -36,6 +38,12 @@ function AdminPage() {
     queryKey: ["admin-trabalhos"],
     queryFn: () => list(),
     enabled: !!prof?.isAdmin,
+  });
+  const { data: avaliacoes = [] } = useQuery({
+    queryKey: ["admin-avaliacoes"], queryFn: () => listAv(), enabled: !!prof?.isAdmin,
+  });
+  const { data: contatos = [] } = useQuery({
+    queryKey: ["admin-contatos"], queryFn: () => listCt(), enabled: !!prof?.isAdmin,
   });
 
   if (lp) return <Centro><Loader2 className="h-6 w-6 animate-spin"/></Centro>;
@@ -57,34 +65,88 @@ function AdminPage() {
   return (
     <div className="h-full overflow-y-auto bg-background">
       <div className="mx-auto max-w-5xl px-4 py-6 md:px-8">
-        <h1 className="font-display text-3xl">Painel ADM — Trabalhos com anexo</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Baixa os materiais do aluno, faz o trabalho e envia o ficheiro final.</p>
+        <h1 className="font-display text-3xl">Painel ADM</h1>
 
-        {isLoading ? (
-          <div className="mt-6"><Loader2 className="h-5 w-5 animate-spin"/></div>
-        ) : trabalhos.length === 0 ? (
-          <p className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            Sem pedidos pendentes.
-          </p>
-        ) : (
-          <ul className="mt-6 space-y-3">
-            {trabalhos.map((t:any)=>(
-              <CardTrabalho
-                key={t.id}
-                t={t}
-                onBaixar={baixar}
-                onEntregar={async (file)=>{
-                  const { path, token } = await sign({ data: { trabalhoId: t.id, nome: file.name }});
-                  const { error } = await supabase.storage.from("trabalhos-anexos").uploadToSignedUrl(path, token, file);
-                  if (error) throw error;
-                  await entregar({ data: { trabalhoId: t.id, ficheiroPath: path }});
-                  qc.invalidateQueries({ queryKey: ["admin-trabalhos"] });
-                  toast.success("Trabalho entregue ao aluno ✅");
-                }}
-              />
+        <Tabs defaultValue="trabalhos" className="mt-6">
+          <TabsList>
+            <TabsTrigger value="trabalhos">Trabalhos</TabsTrigger>
+            <TabsTrigger value="avaliacoes">
+              <Star className="mr-1 h-4 w-4"/> Avaliações ({avaliacoes.length})
+            </TabsTrigger>
+            <TabsTrigger value="contatos">
+              <MessageCircle className="mr-1 h-4 w-4"/> Contactos ({contatos.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="trabalhos" className="mt-4">
+            <p className="text-sm text-muted-foreground">Baixa os materiais do aluno, faz o trabalho e envia o ficheiro final.</p>
+            {isLoading ? (
+              <div className="mt-4"><Loader2 className="h-5 w-5 animate-spin"/></div>
+            ) : trabalhos.length === 0 ? (
+              <p className="mt-4 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                Sem pedidos pendentes.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {trabalhos.map((t:any)=>(
+                  <CardTrabalho
+                    key={t.id}
+                    t={t}
+                    onBaixar={baixar}
+                    onEntregar={async (file)=>{
+                      const { path, token } = await sign({ data: { trabalhoId: t.id, nome: file.name }});
+                      const { error } = await supabase.storage.from("trabalhos-anexos").uploadToSignedUrl(path, token, file);
+                      if (error) throw error;
+                      await entregar({ data: { trabalhoId: t.id, ficheiroPath: path }});
+                      qc.invalidateQueries({ queryKey: ["admin-trabalhos"] });
+                      toast.success("Trabalho entregue ao aluno ✅");
+                    }}
+                  />
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          <TabsContent value="avaliacoes" className="mt-4 space-y-3">
+            {avaliacoes.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Sem avaliações.</p>
+            ) : avaliacoes.map((a:any)=>(
+              <div key={a.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-1">
+                  {Array.from({length:5}).map((_,i)=>(
+                    <Star key={i} className={`h-4 w-4 ${i < a.estrelas ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}/>
+                  ))}
+                  <span className="ml-2 text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString("pt-PT")}</span>
+                </div>
+                {a.comentario && <p className="mt-2 text-sm">{a.comentario}</p>}
+                <p className="mt-2 text-xs text-muted-foreground">User: {a.user_id}</p>
+              </div>
             ))}
-          </ul>
-        )}
+          </TabsContent>
+
+          <TabsContent value="contatos" className="mt-4 space-y-3">
+            {contatos.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Sem contactos.</p>
+            ) : contatos.map((c:any)=>(
+              <div key={c.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge>{c.categoria.replace("_"," ")}</Badge>
+                  <Badge variant="outline">{c.status}</Badge>
+                  <span className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleString("pt-PT")}</span>
+                </div>
+                <div className="mt-2 font-medium">{c.motivo}</div>
+                {c.mensagem && <p className="mt-1 text-sm text-muted-foreground">{c.mensagem}</p>}
+                <a
+                  href={`https://wa.me/${c.telefone}?text=${encodeURIComponent(`Olá! Sobre o teu contacto (${c.categoria.replace("_"," ")}): ${c.motivo}`)}`}
+                  target="_blank" rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  <MessageCircle className="h-4 w-4"/> Responder por WhatsApp ({c.telefone})
+                </a>
+              </div>
+            ))}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
