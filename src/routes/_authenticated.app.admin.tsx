@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Upload, Loader2, ShieldAlert } from "lucide-react";
+import { Download, Upload, Loader2, ShieldAlert, Star, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import {
   adminListTrabalhos,
@@ -14,6 +15,7 @@ import {
   adminEntregar,
   signDownload,
 } from "@/lib/trabalhos.functions";
+import { adminListAvaliacoes, adminListContatos } from "@/lib/feedback.functions";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 
 export const Route = createFileRoute("/_authenticated/app/admin")({
