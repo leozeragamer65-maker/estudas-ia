@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { phoneToEmail, normalizarTelefone, telefoneValido } from "@/lib/auth";
+import { lookupTelefoneByGoogleEmail } from "@/lib/google-link.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
