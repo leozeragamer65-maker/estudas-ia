@@ -12,6 +12,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { getProfileWithUsage } from "@/lib/chat.functions";
+import { getDailyQuizzes } from "@/lib/quiz.functions";
+import { QuizCard } from "@/components/QuizCard";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({ meta: [{ title: "Início — EstudaIA" }] }),
