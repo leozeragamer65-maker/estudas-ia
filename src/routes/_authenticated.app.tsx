@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { GoogleLinkGate } from "@/components/GoogleLinkGate";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 import { AppCtxContext, useAppCtx } from "@/lib/app-ctx";
 
@@ -34,40 +35,42 @@ function AppShell() {
 
   return (
     <AppCtxContext.Provider value={{ activeChatId, setActiveChatId }}>
-      <div className="flex h-screen overflow-hidden bg-background">
-        <div className="hidden md:flex">
-          <AppSidebar plano={plano} isAdmin={isAdmin} />
-        </div>
+      <GoogleLinkGate>
+        <div className="flex h-screen overflow-hidden bg-background">
+          <div className="hidden md:flex">
+            <AppSidebar plano={plano} isAdmin={isAdmin} />
+          </div>
 
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 flex md:hidden">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setMobileOpen(false)}
-            />
-            <div className="relative z-50">
-              <AppSidebar plano={plano} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
+          {mobileOpen && (
+            <div className="fixed inset-0 z-40 flex md:hidden">
+              <div
+                className="absolute inset-0 bg-black/50"
+                onClick={() => setMobileOpen(false)}
+              />
+              <div className="relative z-50">
+                <AppSidebar plano={plano} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex h-12 items-center border-b border-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileOpen((v) => !v)}
-              className="text-sidebar-foreground hover:bg-sidebar-accent"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-            <span className="ml-2 font-display text-lg">EstudaIA</span>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <Outlet />
-          </div>
-        </main>
-      </div>
+          <main className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex h-12 items-center border-b border-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileOpen((v) => !v)}
+                className="text-sidebar-foreground hover:bg-sidebar-accent"
+              >
+                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+              <span className="ml-2 font-display text-lg">EstudaIA</span>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <Outlet />
+            </div>
+          </main>
+        </div>
+      </GoogleLinkGate>
     </AppCtxContext.Provider>
   );
 }
