@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      avaliacoes: {
+        Row: {
+          comentario: string
+          created_at: string
+          estrelas: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comentario?: string
+          created_at?: string
+          estrelas: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comentario?: string
+          created_at?: string
+          estrelas?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chats: {
         Row: {
           created_at: string
@@ -37,6 +64,39 @@ export type Database = {
           seccao?: string
           titulo?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contatos_admin: {
+        Row: {
+          categoria: string
+          created_at: string
+          id: string
+          mensagem: string
+          motivo: string
+          status: string
+          telefone: string
+          user_id: string
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          id?: string
+          mensagem?: string
+          motivo: string
+          status?: string
+          telefone: string
+          user_id: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          mensagem?: string
+          motivo?: string
+          status?: string
+          telefone?: string
           user_id?: string
         }
         Relationships: []
@@ -133,6 +193,74 @@ export type Database = {
           plano_expira?: string | null
           telefone?: string
           trabalhos_disponiveis?: number
+        }
+        Relationships: []
+      }
+      quiz_respostas: {
+        Row: {
+          correta: boolean
+          created_at: string
+          dia: string
+          id: string
+          quiz_id: string
+          resposta: number
+          user_id: string
+        }
+        Insert: {
+          correta: boolean
+          created_at?: string
+          dia?: string
+          id?: string
+          quiz_id: string
+          resposta: number
+          user_id: string
+        }
+        Update: {
+          correta?: boolean
+          created_at?: string
+          dia?: string
+          id?: string
+          quiz_id?: string
+          resposta?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_respostas_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          categoria: string
+          created_at: string
+          explicacao: string
+          id: string
+          opcoes: Json
+          pergunta: string
+          resposta_correta: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          explicacao?: string
+          id?: string
+          opcoes: Json
+          pergunta: string
+          resposta_correta: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          explicacao?: string
+          id?: string
+          opcoes?: Json
+          pergunta?: string
+          resposta_correta?: number
         }
         Relationships: []
       }
