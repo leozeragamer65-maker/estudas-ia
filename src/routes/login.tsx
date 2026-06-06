@@ -121,24 +121,8 @@ function LoginPage() {
     navigate({ to: "/app" });
   };
 
-  const entrarComGoogle = async () => {
-    setLoading(true);
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/app",
-      });
-      if (result.error) {
-        toast.error("Falha ao entrar com Google.");
-        setLoading(false);
-        return;
-      }
-      if (result.redirected) return;
-      navigate({ to: "/app" });
-    } catch {
-      toast.error("Falha ao entrar com Google.");
-      setLoading(false);
-    }
-  };
+
+
 
 
 
