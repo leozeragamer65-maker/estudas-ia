@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 import { AppCtxContext, useAppCtx } from "@/lib/app-ctx";
+import { GoogleLinkGate } from "@/components/GoogleLinkGate";
 
 export { useAppCtx };
 
