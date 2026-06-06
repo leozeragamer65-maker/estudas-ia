@@ -11,7 +11,6 @@ import { lovable } from "@/integrations/lovable";
 import { phoneToEmail, normalizarTelefone, telefoneValido } from "@/lib/auth";
 import { lookupTelefoneByGoogleEmail } from "@/lib/google-link.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
