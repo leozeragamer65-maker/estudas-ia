@@ -6,7 +6,6 @@ import { Menu, X } from "lucide-react";
 
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { GoogleLinkGate } from "@/components/GoogleLinkGate";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 import { AppCtxContext, useAppCtx } from "@/lib/app-ctx";
 
