@@ -28,6 +28,33 @@ export const syncGoogleEmail = createServerFn({ method: "POST" })
   });
 
 /**
+ * Guarda manualmente o email Google (Gmail) que o utilizador informa.
+ * Valida o formato e a presença de domínio @gmail.com / googlemail.com
+ * (aceita também outros domínios Google Workspace).
+ */
+export const saveGoogleEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email({ message: "Email inválido" })
+        .max(255),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ google_email: data.email })
+      .eq("id", userId);
+    if (error) throw new Error(error.message);
+    return { google_email: data.email };
+  });
+
+/**
  * Lookup admin: dado um email Google vinculado, devolve o telefone associado.
  * Usado para permitir login com email Google + senha (sem expor outros dados).
  */
