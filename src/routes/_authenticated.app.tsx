@@ -34,42 +34,40 @@ function AppShell() {
 
   return (
     <AppCtxContext.Provider value={{ activeChatId, setActiveChatId }}>
-      <GoogleLinkGate>
-        <div className="flex h-screen overflow-hidden bg-background">
-          <div className="hidden md:flex">
-            <AppSidebar plano={plano} isAdmin={isAdmin} />
-          </div>
-
-          {mobileOpen && (
-            <div className="fixed inset-0 z-40 flex md:hidden">
-              <div
-                className="absolute inset-0 bg-black/50"
-                onClick={() => setMobileOpen(false)}
-              />
-              <div className="relative z-50">
-                <AppSidebar plano={plano} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
-              </div>
-            </div>
-          )}
-
-          <main className="flex flex-1 flex-col overflow-hidden">
-            <div className="flex h-12 items-center border-b border-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileOpen((v) => !v)}
-                className="text-sidebar-foreground hover:bg-sidebar-accent"
-              >
-                {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-              <span className="ml-2 font-display text-lg">EstudaIA</span>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <Outlet />
-            </div>
-          </main>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <div className="hidden md:flex">
+          <AppSidebar plano={plano} isAdmin={isAdmin} />
         </div>
-      </GoogleLinkGate>
+
+        {mobileOpen && (
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setMobileOpen(false)}
+            />
+            <div className="relative z-50">
+              <AppSidebar plano={plano} isAdmin={isAdmin} onNavigate={() => setMobileOpen(false)} />
+            </div>
+          </div>
+        )}
+
+        <main className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex h-12 items-center border-b border-border bg-sidebar px-3 text-sidebar-foreground md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="text-sidebar-foreground hover:bg-sidebar-accent"
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            <span className="ml-2 font-display text-lg">EstudaIA</span>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </AppCtxContext.Provider>
   );
 }
