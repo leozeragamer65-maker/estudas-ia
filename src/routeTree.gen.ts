@@ -26,6 +26,7 @@ import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppApresentacoesRouteImport } from './routes/_authenticated.app.apresentacoes'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated.app.admin'
 import { Route as ApiPublicWebhookEscalepayRouteImport } from './routes/api/public/webhook.escalepay'
+import { Route as ApiPublicTrabalhosReceberRouteImport } from './routes/api/public/trabalhos.receber'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -118,6 +119,12 @@ const ApiPublicWebhookEscalepayRoute =
     path: '/api/public/webhook/escalepay',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicTrabalhosReceberRoute =
+  ApiPublicTrabalhosReceberRouteImport.update({
+    id: '/api/public/trabalhos/receber',
+    path: '/api/public/trabalhos/receber',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/trabalhos/receber': typeof ApiPublicTrabalhosReceberRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
 export interface FileRoutesByTo {
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/trabalhos/receber': typeof ApiPublicTrabalhosReceberRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
 export interface FileRoutesById {
@@ -172,6 +181,7 @@ export interface FileRoutesById {
   '/_authenticated/app/trabalhos': typeof AuthenticatedAppTrabalhosRoute
   '/_authenticated/app/tradutor': typeof AuthenticatedAppTradutorRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/trabalhos/receber': typeof ApiPublicTrabalhosReceberRoute
   '/api/public/webhook/escalepay': typeof ApiPublicWebhookEscalepayRoute
 }
 export interface FileRouteTypes {
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/app/trabalhos'
     | '/app/tradutor'
     | '/app/'
+    | '/api/public/trabalhos/receber'
     | '/api/public/webhook/escalepay'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/app/trabalhos'
     | '/app/tradutor'
     | '/app'
+    | '/api/public/trabalhos/receber'
     | '/api/public/webhook/escalepay'
   id:
     | '__root__'
@@ -228,6 +240,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/trabalhos'
     | '/_authenticated/app/tradutor'
     | '/_authenticated/app/'
+    | '/api/public/trabalhos/receber'
     | '/api/public/webhook/escalepay'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +248,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiPublicTrabalhosReceberRoute: typeof ApiPublicTrabalhosReceberRoute
   ApiPublicWebhookEscalepayRoute: typeof ApiPublicWebhookEscalepayRoute
 }
 
@@ -359,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhookEscalepayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/trabalhos/receber': {
+      id: '/api/public/trabalhos/receber'
+      path: '/api/public/trabalhos/receber'
+      fullPath: '/api/public/trabalhos/receber'
+      preLoaderRoute: typeof ApiPublicTrabalhosReceberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -411,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiPublicTrabalhosReceberRoute: ApiPublicTrabalhosReceberRoute,
   ApiPublicWebhookEscalepayRoute: ApiPublicWebhookEscalepayRoute,
 }
 export const routeTree = rootRouteImport
