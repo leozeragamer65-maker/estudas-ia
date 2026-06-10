@@ -129,6 +129,8 @@ export const createTrabalho = createServerFn({ method: "POST" })
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            tipo_trabalho: "cientifico",
+            fonte: "internet",
             chat_id: trabalho.id,
             utilizador_id: userId,
             nome_aluno: data.dados.nome_completo,
@@ -145,8 +147,9 @@ export const createTrabalho = createServerFn({ method: "POST" })
             mes: data.dados.mes,
             ano: data.dados.ano,
             cidade: data.dados.cidade,
-            fonte: "internet",
             instrucoes_extra: data.dados.instrucoes_extra ?? "",
+            callback_url:
+              "https://estudas-ia.lovable.app/api/public/trabalhos/receber",
           }),
         });
       } catch (e) {
