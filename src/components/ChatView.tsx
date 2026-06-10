@@ -38,6 +38,15 @@ export function ChatView({ chatId, seccao, onChatCreated, placeholder, title }: 
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [mensagens, enviando]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pre = sessionStorage.getItem("estudaia:pergunta-inicial");
+    if (pre) {
+      sessionStorage.removeItem("estudaia:pergunta-inicial");
+      setTexto(pre);
+    }
+  }, []);
+
   const handleEnviar = async () => {
     const t = texto.trim();
     if (!t || enviando) return;
