@@ -36,11 +36,7 @@ function ChatPage() {
           <span className="font-display text-sm">Chat IA</span>
         </div>
         <div className="flex-1 overflow-hidden">
-          <ChatView
-            chatId={activeChatId}
-            seccao="geral"
-            onChatCreated={setActiveChatId}
-          />
+          <ChatView chatId={activeChatId} seccao="geral" onChatCreated={setActiveChatId} />
         </div>
       </div>
     </div>

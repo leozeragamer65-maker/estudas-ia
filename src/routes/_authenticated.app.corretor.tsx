@@ -29,7 +29,11 @@ function CorretorPage() {
       <ChatHistorySidebar seccao="corretor" newLabel="Nova correcção" listLabel="Correcções" />
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2 md:hidden">
-          <ChatHistoryMobileTrigger seccao="corretor" newLabel="Nova correcção" listLabel="Correcções" />
+          <ChatHistoryMobileTrigger
+            seccao="corretor"
+            newLabel="Nova correcção"
+            listLabel="Correcções"
+          />
           <span className="font-display text-sm">Corrector de português</span>
         </div>
         <div className="flex-1 overflow-hidden">

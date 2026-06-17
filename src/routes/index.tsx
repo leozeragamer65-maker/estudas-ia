@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Menu,
@@ -17,6 +17,10 @@ import {
   Wrench,
   CreditCard,
   X,
+  ChevronRight,
+  Moon,
+  Sun,
+  LogOut,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -54,9 +58,37 @@ const MENU_ITEMS = [
 
 function Landing() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
   const [pergunta, setPergunta] = useState("");
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  // Sync theme
+  useEffect(() => {
+    const checkTheme = () => {
+      const isDark = document.documentElement.classList.contains("dark");
+      setTheme(isDark ? "dark" : "light");
+    };
+    checkTheme();
+
+    window.addEventListener("theme-change", checkTheme);
+    window.addEventListener("storage", checkTheme);
+
+    return () => {
+      window.removeEventListener("theme-change", checkTheme);
+      window.removeEventListener("storage", checkTheme);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+    window.dispatchEvent(new Event("theme-change"));
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setAutenticado(!!data.session));
@@ -146,7 +178,8 @@ function Landing() {
             className="font-display text-[42px] font-bold leading-[1.05] tracking-tight md:text-5xl"
             style={{ animation: "estudaia-rise 0.6s ease-out both" }}
           >
-            O que vamos<br />
+            O que vamos
+            <br />
             estudar <span className="text-[#F97316]">hoje?</span>
           </h1>
           <p
@@ -210,54 +243,157 @@ function Landing() {
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fadein"
             onClick={() => setMenuOpen(false)}
           />
           <aside
-            className="relative flex h-full w-72 max-w-[85vw] flex-col bg-[#15100b] text-white shadow-2xl"
-            style={{ animation: "estudaia-slide-in 0.25s ease-out both" }}
+            className="relative flex h-full w-[310px] max-w-[85vw] flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border shadow-[5px_0_25px_rgba(0,0,0,0.4)] overflow-y-auto"
+            style={{ animation: "estudaia-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both" }}
           >
-            <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F97316]/15 text-[#F97316]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-6 border-b border-sidebar-border">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-primary shadow-[0_0_10px_rgba(255,107,0,0.2)]">
                   <GraduationCap className="h-5 w-5" />
+                </div>
+                <span className="font-sans text-[20px] font-bold tracking-tight text-sidebar-foreground">
+                  Estuda IA
                 </span>
-                <span className="font-display text-lg">Estuda IA</span>
               </div>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/5"
+                className="flex items-center justify-center h-10 w-10 bg-transparent rounded-[14px] border border-sidebar-border hover:border-sidebar-foreground/25 hover:bg-sidebar-accent transition-all text-sidebar-foreground/80 active:scale-95"
                 aria-label="Fechar menu"
               >
-                <X className="h-5 w-5" />
+                <X className="h-[18px] w-[18px]" />
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-3">
-              {MENU_ITEMS.map(({ to, label, icon: Icon }) => (
-                <Link
-                  key={to}
-                  to={to as "/app"}
-                  onClick={() => setMenuOpen(false)}
-                  className="mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-white/80 transition-colors hover:bg-white/5 hover:text-white"
-                >
-                  <Icon className="h-4 w-4 text-[#F97316]" />
-                  {label}
-                </Link>
-              ))}
+
+            {/* Menu Items */}
+            <nav className="flex-1 px-4 py-6 space-y-2.5 overflow-y-auto">
+              {MENU_ITEMS.map(({ to, label, icon: Icon }) => {
+                const isActive = currentPath === to;
+                return (
+                  <Link
+                    key={to}
+                    to={to as "/app"}
+                    onClick={() => setMenuOpen(false)}
+                    className={`relative group flex items-center justify-between rounded-[14px] px-5 py-4 border transition-all duration-300 ${
+                      isActive
+                        ? "bg-sidebar-accent border-primary/40 text-sidebar-foreground shadow-[0_0_15px_-3px_rgba(255,107,0,0.25)] ring-1 ring-primary/30"
+                        : "bg-sidebar-accent/10 border-sidebar-border text-sidebar-foreground/75 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                    }`}
+                  >
+                    {/* Active left indicator line */}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[28px] bg-primary rounded-r-full shadow-[0_0_8px_rgba(255,107,0,0.8)]" />
+                    )}
+
+                    <div className="flex items-center gap-4">
+                      <Icon
+                        className={`h-[22px] w-[22px] transition-transform duration-300 group-hover:scale-110 ${
+                          isActive
+                            ? "text-primary"
+                            : "text-primary group-hover:text-sidebar-foreground"
+                        }`}
+                      />
+                      <span className="font-sans text-[15px] font-medium leading-none">
+                        {label}
+                      </span>
+                    </div>
+
+                    <ChevronRight
+                      className={`h-4 w-4 transition-transform duration-300 ${
+                        isActive
+                          ? "text-primary"
+                          : "text-sidebar-foreground/20 group-hover:text-sidebar-foreground"
+                      }`}
+                    />
+                  </Link>
+                );
+              })}
             </nav>
-            {!autenticado && (
-              <div className="border-t border-white/5 p-4">
-                <Button
-                  className="w-full bg-[#F97316] hover:bg-[#F97316]/90"
-                  onClick={() => {
+
+            {/* Upgrade Banner - ONLY available for free users */}
+            <Link
+              to="/app/planos"
+              onClick={() => setMenuOpen(false)}
+              className="mx-4 mb-3 block rounded-2xl bg-gradient-to-br from-primary/12 to-transparent border border-primary/15 p-5 hover:border-primary/30 transition-all duration-300 relative group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary shadow-[0_0_8px_rgba(255,107,0,0.15)]">
+                  <GraduationCap className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-sans font-bold text-sidebar-foreground text-[14px]">
+                    Seja ainda melhor.
+                  </div>
+                  <div className="text-sidebar-foreground/60 mt-1 text-xs leading-normal">
+                    Explore todos os recursos e potencialize seus estudos!
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-primary/85 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Footer with Login-Action / Logout + Dark mode switch */}
+            <div className="border-t border-sidebar-border p-4 bg-sidebar space-y-1 mt-auto">
+              {/* Theme Switch Toggle */}
+              <button
+                onClick={toggleTheme}
+                type="button"
+                className="flex w-full items-center justify-between rounded-xl hover:bg-sidebar-accent px-4 py-3 text-sm transition-all text-sidebar-foreground/80 hover:text-sidebar-foreground"
+              >
+                <div className="flex items-center gap-3">
+                  {theme === "dark" ? (
+                    <Moon className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Sun className="h-5 w-5 text-primary" />
+                  )}
+                  <span className="font-sans font-medium text-[15px]">Modo escuro</span>
+                </div>
+                <div
+                  className={`h-6 w-11 rounded-full relative transition-colors duration-300 ${
+                    theme === "dark"
+                      ? "bg-primary shadow-[0_0_8px_rgba(255,107,0,0.4)]"
+                      : "bg-sidebar-foreground/25"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 h-4 w-4 rounded-full bg-sidebar transition-all duration-300 ${
+                      theme === "dark" ? "left-6" : "left-1"
+                    }`}
+                  />
+                </div>
+              </button>
+
+              {autenticado ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
                     setMenuOpen(false);
                     navigate({ to: "/login" });
                   }}
+                  className="flex w-full items-center gap-3 rounded-xl hover:bg-sidebar-accent px-4 py-3 text-sm text-red-500 hover:text-red-400 transition-colors"
                 >
-                  Entrar
-                </Button>
-              </div>
-            )}
+                  <LogOut className="h-[18px] w-[18px]" />
+                  <span className="font-sans font-medium">Sair da conta</span>
+                </button>
+              ) : (
+                <div className="pt-2 px-1">
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/95 text-primary-foreground rounded-xl font-medium py-5 shadow-lg shadow-primary/20"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate({ to: "/login" });
+                    }}
+                  >
+                    Entrar
+                  </Button>
+                </div>
+              )}
+            </div>
           </aside>
         </div>
       )}

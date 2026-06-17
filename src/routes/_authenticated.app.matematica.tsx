@@ -70,9 +70,7 @@ function MatPage() {
                   title={f.label}
                 >
                   <InlineMath math={f.tex} />
-                  <span className="hidden text-xs text-muted-foreground sm:inline">
-                    {f.label}
-                  </span>
+                  <span className="hidden text-xs text-muted-foreground sm:inline">{f.label}</span>
                 </div>
               ))}
             </div>

@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/app")({
 
 function AppShell() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const fetchProfile = useServerFn(getProfileWithUsage);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
   const plano = data?.profile?.plano ?? "free";
@@ -34,11 +34,11 @@ function AppShell() {
 
   // Initialize theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    const savedTheme = localStorage.getItem("theme") as "dark" | "light" | null;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
     setTheme(initialTheme);
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    document.documentElement.classList.toggle("dark", initialTheme === "dark");
   }, []);
 
   return (

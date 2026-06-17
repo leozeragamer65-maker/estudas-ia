@@ -26,12 +26,16 @@ function DashboardPage() {
   const fetchProfile = useServerFn(getProfileWithUsage);
   const fetchQuizzes = useServerFn(getDailyQuizzes);
   const { data } = useQuery({ queryKey: ["profile-usage"], queryFn: () => fetchProfile() });
-  const { data: quizzes = [] } = useQuery({ queryKey: ["daily-quizzes"], queryFn: () => fetchQuizzes() });
+  const { data: quizzes = [] } = useQuery({
+    queryKey: ["daily-quizzes"],
+    queryFn: () => fetchQuizzes(),
+  });
   const profile = data?.profile;
   const uso = data?.uso;
   const plano = profile?.plano ?? "free";
   const total = LIMITES_TOTAL[plano] ?? 5;
-  const usadosHoje = (uso?.chat ?? 0) + (uso?.matematica ?? 0) + (uso?.traducao ?? 0) + (uso?.resumo ?? 0);
+  const usadosHoje =
+    (uso?.chat ?? 0) + (uso?.matematica ?? 0) + (uso?.traducao ?? 0) + (uso?.resumo ?? 0);
   const restantes = Math.max(0, total - usadosHoje);
   const pct = total > 0 ? Math.round((usadosHoje / total) * 100) : 0;
 
@@ -43,9 +47,7 @@ function DashboardPage() {
             <h1 className="font-display text-3xl md:text-4xl">
               Olá, {profile?.nome || "Estudante"} <span className="inline-block">👋</span>
             </h1>
-            <p className="mt-1 text-muted-foreground">
-              Pronto para um dia produtivo de estudo?
-            </p>
+            <p className="mt-1 text-muted-foreground">Pronto para um dia produtivo de estudo?</p>
           </div>
           <span className="inline-flex items-center rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground">
             Plano {plano === "free" ? "Grátis" : plano.toUpperCase()}
@@ -75,9 +77,7 @@ function DashboardPage() {
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">Trabalhos disponíveis</div>
-              <div className="font-display text-3xl">
-                {profile?.trabalhos_disponiveis ?? 0}
-              </div>
+              <div className="font-display text-3xl">{profile?.trabalhos_disponiveis ?? 0}</div>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
               Acompanha o estado em "Trabalho Científico".
@@ -111,7 +111,9 @@ function DashboardPage() {
             <h2 className="mt-10 font-display text-2xl">Quiz diário 🧠</h2>
             <p className="mt-1 text-sm text-muted-foreground">Dois novos desafios todos os dias.</p>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {quizzes.map((q: any) => <QuizCard key={q.id} quiz={q} />)}
+              {quizzes.map((q: any) => (
+                <QuizCard key={q.id} quiz={q} />
+              ))}
             </div>
           </>
         )}
@@ -130,12 +132,7 @@ function DashboardPage() {
             title="Matemática"
             desc="Resolução passo a passo"
           />
-          <QuickCard
-            to="/app/chat"
-            icon={MessageSquare}
-            title="Chat IA"
-            desc="Tira dúvidas 24/7"
-          />
+          <QuickCard to="/app/chat" icon={MessageSquare} title="Chat IA" desc="Tira dúvidas 24/7" />
           <QuickCard
             to="/app/apresentacoes"
             icon={Presentation}

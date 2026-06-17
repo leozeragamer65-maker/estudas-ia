@@ -10,7 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { getProfileWithUsage } from "@/lib/chat.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +76,9 @@ function PerfilPage() {
               <span className="text-muted-foreground">Quizzes respondidos: </span>
               <span className="font-medium">{stats.total}</span>
               <span className="text-muted-foreground"> • Acertos: </span>
-              <span className="font-medium">{stats.acertos} ({stats.taxa}%)</span>
+              <span className="font-medium">
+                {stats.acertos} ({stats.taxa}%)
+              </span>
             </div>
           )}
         </div>
@@ -139,7 +145,9 @@ function AvaliacaoCard({ initial }: { initial: any }) {
             className="transition-transform hover:scale-110"
             aria-label={`${n} estrelas`}
           >
-            <Star className={`h-8 w-8 ${n <= estrelas ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+            <Star
+              className={`h-8 w-8 ${n <= estrelas ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+            />
           </button>
         ))}
       </div>
@@ -170,7 +178,9 @@ function ContatoCard({ telefone }: { telefone: string }) {
   const [mensagem, setMensagem] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  useEffect(() => { if (telefone) setTel(telefone); }, [telefone]);
+  useEffect(() => {
+    if (telefone) setTel(telefone);
+  }, [telefone]);
 
   const submit = async () => {
     const limpo = tel.replace(/\D+/g, "");
@@ -184,9 +194,17 @@ function ContatoCard({ telefone }: { telefone: string }) {
     }
     setEnviando(true);
     try {
-      await enviar({ data: { telefone: limpo, categoria: categoria as any, motivo: motivo.trim(), mensagem: mensagem.trim() } });
+      await enviar({
+        data: {
+          telefone: limpo,
+          categoria: categoria as any,
+          motivo: motivo.trim(),
+          mensagem: mensagem.trim(),
+        },
+      });
       toast.success("Pedido enviado. Vais receber resposta no WhatsApp.");
-      setMotivo(""); setMensagem("");
+      setMotivo("");
+      setMensagem("");
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao enviar");
     } finally {
@@ -211,9 +229,15 @@ function ContatoCard({ telefone }: { telefone: string }) {
         <div>
           <Label>Categoria</Label>
           <Select value={categoria} onValueChange={setCategoria}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {CATEGORIAS.map((c) => <SelectItem key={c.v} value={c.v}>{c.l}</SelectItem>)}
+              {CATEGORIAS.map((c) => (
+                <SelectItem key={c.v} value={c.v}>
+                  {c.l}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -223,7 +247,12 @@ function ContatoCard({ telefone }: { telefone: string }) {
         </div>
         <div>
           <Label>Mensagem (opcional)</Label>
-          <Textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} maxLength={2000} rows={4} />
+          <Textarea
+            value={mensagem}
+            onChange={(e) => setMensagem(e.target.value)}
+            maxLength={2000}
+            rows={4}
+          />
         </div>
         <Button onClick={submit} disabled={enviando}>
           {enviando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

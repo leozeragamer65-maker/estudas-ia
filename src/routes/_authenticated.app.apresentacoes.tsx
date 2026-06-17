@@ -20,8 +20,8 @@ function ApresentacoesPage() {
           <Lock className="h-3 w-3" /> Disponível no Plano Pro
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
-          Após obteres o <strong>Plano Pro</strong> poderás gerar apresentações PPT a partir
-          de um tema, com slides já estruturados e prontos a apresentar.
+          Após obteres o <strong>Plano Pro</strong> poderás gerar apresentações PPT a partir de um
+          tema, com slides já estruturados e prontos a apresentar.
         </p>
         <Button asChild className="mt-5">
           <Link to="/app/planos">Ver Plano Pro</Link>

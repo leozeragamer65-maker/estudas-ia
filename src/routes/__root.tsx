@@ -79,17 +79,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Estuda IA" },
-      { name: "description", content: "Estude usando as melhores ias do mercado e automatize seu aprendizado" },
+      {
+        name: "description",
+        content: "Estude usando as melhores ias do mercado e automatize seu aprendizado",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Estuda IA" },
-      { property: "og:description", content: "Estude usando as melhores ias do mercado e automatize seu aprendizado" },
+      {
+        property: "og:description",
+        content: "Estude usando as melhores ias do mercado e automatize seu aprendizado",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Estuda IA" },
-      { name: "twitter:description", content: "Estude usando as melhores ias do mercado e automatize seu aprendizado" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PgQw8hqcVhVxJqHFJo61qxyxCmU2/social-images/social-1780088119977-1000003528.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/PgQw8hqcVhVxJqHFJo61qxyxCmU2/social-images/social-1780088119977-1000003528.webp" },
+      {
+        name: "twitter:description",
+        content: "Estude usando as melhores ias do mercado e automatize seu aprendizado",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PgQw8hqcVhVxJqHFJo61qxyxCmU2/social-images/social-1780088119977-1000003528.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/PgQw8hqcVhVxJqHFJo61qxyxCmU2/social-images/social-1780088119977-1000003528.webp",
+      },
     ],
     links: [
       {
@@ -120,6 +137,17 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    // Default to dark mode for Estuda IA
+    const activeTheme = savedTheme === "light" ? "light" : "dark";
+
+    document.documentElement.classList.toggle("dark", activeTheme === "dark");
+    if (!savedTheme) {
+      localStorage.setItem("theme", activeTheme);
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

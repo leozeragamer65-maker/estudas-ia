@@ -29,7 +29,11 @@ function TradutorPage() {
       <ChatHistorySidebar seccao="traducao" newLabel="Nova tradução" listLabel="Traduções" />
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2 md:hidden">
-          <ChatHistoryMobileTrigger seccao="traducao" newLabel="Nova tradução" listLabel="Traduções" />
+          <ChatHistoryMobileTrigger
+            seccao="traducao"
+            newLabel="Nova tradução"
+            listLabel="Traduções"
+          />
           <span className="font-display text-sm">Tradutor</span>
         </div>
         <div className="flex-1 overflow-hidden">

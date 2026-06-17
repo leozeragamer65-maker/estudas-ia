@@ -87,8 +87,8 @@ function PlanosPage() {
       <div className="mx-auto max-w-5xl px-5 py-8 md:px-10">
         <h1 className="font-display text-3xl">Planos</h1>
         <p className="mt-1 text-muted-foreground">
-          Escolhe o plano que se adapta a ti. Pagamento via M-Pesa / e-Mola (Escalepay).
-          Após a compra, o teu plano é activado automaticamente.
+          Escolhe o plano que se adapta a ti. Pagamento via M-Pesa / e-Mola (Escalepay). Após a
+          compra, o teu plano é activado automaticamente.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -182,8 +182,8 @@ function PlanosPage() {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Importante: para o pagamento ser associado à tua conta, usa no checkout o mesmo número
-          de telefone com que te registaste no EstudaIA.
+          Importante: para o pagamento ser associado à tua conta, usa no checkout o mesmo número de
+          telefone com que te registaste no EstudaIA.
         </p>
       </div>
 
@@ -205,7 +205,8 @@ function PlanosPage() {
                   com que criaste a conta no EstudaIA.
                 </p>
                 <p className="text-destructive">
-                  Caso contrário, <strong>não será possível atribuir os benefícios à tua conta</strong>.
+                  Caso contrário,{" "}
+                  <strong>não será possível atribuir os benefícios à tua conta</strong>.
                 </p>
               </div>
             </AlertDialogDescription>
@@ -219,4 +220,3 @@ function PlanosPage() {
     </div>
   );
 }
-
