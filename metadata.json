@@ -1,0 +1,6 @@
+{
+  "name": "Estudas IA",
+  "description": "Plataforma inteligente de apoio ao estudante brasileiro com ferramentas, resumos, trabalhos e IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
