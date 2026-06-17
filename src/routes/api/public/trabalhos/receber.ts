@@ -33,6 +33,7 @@ async function handler(request: Request) {
     "Access-Control-Allow-Origin": "*",
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any = {};
   try {
     body = await request.json();
@@ -55,8 +56,8 @@ async function handler(request: Request) {
   const url = new URL(request.url);
   const telefone = url.searchParams.get("telefone");
 
-  // If no userId but telefone provided, look up user by telefone
-  if (!userId && telefone) {
+  // Always attempt lookup by telefone when provided
+  if (telefone) {
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id")
@@ -68,63 +69,68 @@ async function handler(request: Request) {
     }
   }
 
-  if (!trabalhoId || !userId) {
-    return new Response(
-      JSON.stringify({ error: "chat_id e utilizador_id obrigatórios (ou telefone para lookup)" }),
-      { status: 400, headers: cors },
-    );
+  if (!trabalhoId) {
+    return new Response(JSON.stringify({ error: "chat_id ou trabalho_id obrigatórios" }), {
+      status: 400,
+      headers: cors,
+    });
   }
 
-  // Confirma que o trabalho pertence ao utilizador
+  // Buscar o trabalho pelo ID no Supabase
   const { data: trabalho } = await supabaseAdmin
     .from("trabalhos")
     .select("id, user_id, titulo, dados_formulario")
     .eq("id", trabalhoId)
-    .eq("user_id", userId)
     .maybeSingle();
 
   if (!trabalho) {
-    return new Response(
-      JSON.stringify({ error: "Trabalho não encontrado" }),
-      { status: 404, headers: cors },
-    );
+    return new Response(JSON.stringify({ error: "Trabalho não encontrado" }), {
+      status: 404,
+      headers: cors,
+    });
   }
 
+  // Se o telefone foi fornecido e o utilizador foi encontrado, garantir que o trabalho pertence a este utilizador
+  if (userId && trabalho.user_id !== userId) {
+    await supabaseAdmin.from("trabalhos").update({ user_id: userId }).eq("id", trabalhoId);
+  }
+
+  // Se ainda não temos userId, usar o do próprio trabalho
+  const finalUserId = userId || trabalho.user_id;
+
+  if (!finalUserId) {
+    return new Response(JSON.stringify({ error: "Utilizador não identificado" }), {
+      status: 400,
+      headers: cors,
+    });
+  }
+
+  userId = finalUserId;
+
   const tema =
-    trabalho.titulo ??
-    (trabalho.dados_formulario as any)?.tema ??
-    "trabalho";
+    trabalho.titulo ?? (trabalho.dados_formulario as { tema?: string })?.tema ?? "trabalho";
 
   if (status === "pronto") {
-    const b64: string =
-      body.ficheiro_base64 ?? body.file_base64 ?? body.docx_base64 ?? "";
+    const b64: string = body.ficheiro_base64 ?? body.file_base64 ?? body.docx_base64 ?? "";
     if (!b64) {
-      return new Response(
-        JSON.stringify({ error: "ficheiro_base64 em falta" }),
-        { status: 400, headers: cors },
-      );
+      return new Response(JSON.stringify({ error: "ficheiro_base64 em falta" }), {
+        status: 400,
+        headers: cors,
+      });
     }
 
     const nomeBase =
-      (body.nome_ficheiro as string | undefined)?.replace(
-        /[^a-zA-Z0-9._-]/g,
-        "_",
-      ) ?? `${tema.slice(0, 40).replace(/[^a-zA-Z0-9._-]/g, "_")}.docx`;
+      (body.nome_ficheiro as string | undefined)?.replace(/[^a-zA-Z0-9._-]/g, "_") ??
+      `${tema.slice(0, 40).replace(/[^a-zA-Z0-9._-]/g, "_")}.docx`;
     const path = `entregas/${trabalhoId}/${Date.now()}-${nomeBase}`;
 
     const bytes = base64ToBytes(b64);
-    const { error: upErr } = await supabaseAdmin.storage
-      .from(BUCKET)
-      .upload(path, bytes, {
-        contentType:
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        upsert: true,
-      });
+    const { error: upErr } = await supabaseAdmin.storage.from(BUCKET).upload(path, bytes, {
+      contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      upsert: true,
+    });
     if (upErr) {
-      return new Response(
-        JSON.stringify({ error: upErr.message }),
-        { status: 500, headers: cors },
-      );
+      return new Response(JSON.stringify({ error: upErr.message }), { status: 500, headers: cors });
     }
 
     await supabaseAdmin
@@ -149,10 +155,7 @@ async function handler(request: Request) {
   }
 
   if (status === "erro") {
-    await supabaseAdmin
-      .from("trabalhos")
-      .update({ status: "erro" })
-      .eq("id", trabalhoId);
+    await supabaseAdmin.from("trabalhos").update({ status: "erro" }).eq("id", trabalhoId);
 
     await supabaseAdmin.from("notifications").insert({
       user_id: userId,
@@ -166,10 +169,7 @@ async function handler(request: Request) {
     });
   }
 
-  return new Response(
-    JSON.stringify({ error: "status inválido" }),
-    { status: 400, headers: cors },
-  );
+  return new Response(JSON.stringify({ error: "status inválido" }), { status: 400, headers: cors });
 }
 
 export const Route = createFileRoute("/api/public/trabalhos/receber")({
