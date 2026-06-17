@@ -51,33 +51,70 @@
   --card-foreground: #f5f5f5;
   --popover: #15100b;
   --popover-foreground: #f5f5f5;
-  --primary: #F97316;                  /* laranja Estuda IA */
+  --primary: #f97316; /* laranja Estuda IA */
   --primary-foreground: #0f0f0f;
   --secondary: #1c1c1c;
   --secondary-foreground: #f5f5f5;
   --muted: #1a1a1a;
-  --muted-foreground: rgba(255,255,255,0.55);
-  --accent: #F97316;
+  --muted-foreground: rgba(255, 255, 255, 0.55);
+  --accent: #f97316;
   --accent-foreground: #0f0f0f;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: rgba(255,255,255,0.08);
-  --input: rgba(255,255,255,0.10);
-  --ring: #F97316;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #f97316;
   --sidebar: #15100b;
   --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #F97316;
+  --sidebar-primary: #f97316;
   --sidebar-primary-foreground: #0f0f0f;
-  --sidebar-accent: rgba(249,115,22,0.12);
+  --sidebar-accent: rgba(249, 115, 22, 0.12);
   --sidebar-accent-foreground: #f5f5f5;
-  --sidebar-border: rgba(255,255,255,0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
 
   /* Brand tokens */
-  --brand-orange: #F97316;
-  --brand-orange-soft: rgba(249,115,22,0.15);
-  --brand-glow: 0 0 24px -8px rgba(249,115,22,0.45);
+  --brand-orange: #f97316;
+  --brand-orange-soft: rgba(249, 115, 22, 0.15);
+  --brand-glow: 0 0 24px -8px rgba(249, 115, 22, 0.45);
   --surface-elev: #141414;
   --surface-elev-2: #1a1a1a;
+}
+
+:root:not(.dark) {
+  color-scheme: light;
+  --background: #fcfaf7;
+  --foreground: #1d1815;
+  --card: #ffffff;
+  --card-foreground: #1d1815;
+  --popover: #f5efeb;
+  --popover-foreground: #1d1815;
+  --primary: #ef6a0b;
+  --primary-foreground: #ffffff;
+  --secondary: #efe9e4;
+  --secondary-foreground: #1d1815;
+  --muted: #efe9e4;
+  --muted-foreground: rgba(29, 24, 21, 0.6);
+  --accent: #ef6a0b;
+  --accent-foreground: #ffffff;
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+  --border: rgba(29, 24, 21, 0.08);
+  --input: rgba(29, 24, 21, 0.06);
+  --ring: #ef6a0b;
+  --sidebar: #f5f0eb;
+  --sidebar-foreground: #1d1815;
+  --sidebar-primary: #ef6a0b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(239, 106, 11, 0.08);
+  --sidebar-accent-foreground: #1d1815;
+  --sidebar-border: rgba(29, 24, 21, 0.06);
+
+  /* Brand tokens */
+  --brand-orange: #ef6a0b;
+  --brand-orange-soft: rgba(239, 106, 11, 0.1);
+  --brand-glow: 0 4px 15px -2px rgba(239, 106, 11, 0.15);
+  --surface-elev: #ffffff;
+  --surface-elev-2: #fbf9f6;
 }
 
 .dark {
@@ -85,47 +122,82 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
 
 /* ----- Estuda IA — shared design system utilities ----- */
 @keyframes estudaia-rise {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes estudaia-slide-in {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 @keyframes estudaia-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-@utility animate-rise   { animation: estudaia-rise 0.55s ease-out both; }
-@utility animate-slidein { animation: estudaia-slide-in 0.25s ease-out both; }
-@utility animate-fadein  { animation: estudaia-fade-in 0.35s ease-out both; }
+@utility animate-rise {
+  animation: estudaia-rise 0.55s ease-out both;
+}
+@utility animate-slidein {
+  animation: estudaia-slide-in 0.25s ease-out both;
+}
+@utility animate-fadein {
+  animation: estudaia-fade-in 0.35s ease-out both;
+}
 
 @utility brand-card {
   background-color: var(--surface-elev);
-  border: 1px solid rgba(249,115,22,0.18);
+  border: 1px solid rgba(249, 115, 22, 0.18);
   border-radius: var(--radius);
-  box-shadow: inset 0 0 0 1px rgba(249,115,22,0.05);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.05);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 @utility brand-card-hover {
-  &:hover { transform: translateY(-2px); border-color: rgba(249,115,22,0.4); box-shadow: var(--brand-glow); }
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: var(--brand-glow);
+  }
 }
 
 @utility brand-input {
   background-color: #15100b;
-  border: 1px solid rgba(249,115,22,0.45);
+  border: 1px solid rgba(249, 115, 22, 0.45);
   border-radius: 1rem;
   box-shadow: var(--brand-glow);
 }
@@ -143,11 +215,15 @@
 
 @utility brand-header {
   background: linear-gradient(180deg, #1a0d05 0%, #0f0f0f 100%);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* KaTeX tweaks: prevent overflow on mobile */
-.katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
 
 /* Ocultar elementos Lovable badge */
 a[href*="lovable.dev"],
