@@ -14,20 +14,37 @@ export const getMyAvaliacao = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data } = await supabase.from("avaliacoes").select("*").eq("user_id", userId).maybeSingle();
+    const { data } = await supabase
+      .from("avaliacoes")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
     return data;
   });
 
 export const saveAvaliacao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ estrelas: z.number().int().min(1).max(5), comentario: z.string().max(1000).default("") }))
+  .inputValidator(
+    z.object({
+      estrelas: z.number().int().min(1).max(5),
+      comentario: z.string().max(1000).default(""),
+    }),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: existing } = await supabase.from("avaliacoes").select("id").eq("user_id", userId).maybeSingle();
+    const { data: existing } = await supabase
+      .from("avaliacoes")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
     if (existing) {
       const { error } = await supabase
         .from("avaliacoes")
-        .update({ estrelas: data.estrelas, comentario: data.comentario, updated_at: new Date().toISOString() })
+        .update({
+          estrelas: data.estrelas,
+          comentario: data.comentario,
+          updated_at: new Date().toISOString(),
+        })
         .eq("user_id", userId);
       if (error) throw new Error(error.message);
     } else {
@@ -53,7 +70,14 @@ export const adminListAvaliacoes = createServerFn({ method: "GET" })
   });
 
 // ---- Contato com ADM ----
-const CATEGORIAS = ["problema_tecnico", "sugestao", "duvida", "parceria", "denuncia", "outro"] as const;
+const CATEGORIAS = [
+  "problema_tecnico",
+  "sugestao",
+  "duvida",
+  "parceria",
+  "denuncia",
+  "outro",
+] as const;
 
 export const enviarContato = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

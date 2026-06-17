@@ -4,8 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 // Limites diários por plano e tipo de crédito.
 const LIMITES: Record<string, Record<string, number>> = {
-  free:  { chat: 3,   matematica: 1,  traducao: 3,  resumo: 2,  trabalhos: 0 },
-  "75mt":  { chat: 50,  matematica: 15, traducao: 30, resumo: 20, trabalhos: 0 },
+  free: { chat: 3, matematica: 1, traducao: 3, resumo: 2, trabalhos: 0 },
+  "75mt": { chat: 50, matematica: 15, traducao: 30, resumo: 20, trabalhos: 0 },
   "150mt": { chat: 150, matematica: 50, traducao: 100, resumo: 60, trabalhos: 0 },
 };
 
@@ -16,23 +16,17 @@ const AGENT_URLS = {
   trabalho: "https://estudo-moz-assist.lovable.app/api/public/agent/generate",
 };
 
-export type Seccao =
-  | "geral"
-  | "trabalho"
-  | "matematica"
-  | "traducao"
-  | "resumo"
-  | "corretor";
+export type Seccao = "geral" | "trabalho" | "matematica" | "traducao" | "resumo" | "corretor";
 
 // Mapa: secção -> { agente externo, tipo de crédito, prefixo de prompt }
 const SECCAO_CFG: Record<
   Seccao,
   { agente: keyof typeof AGENT_URLS; credito: keyof (typeof LIMITES)["free"]; prefixo?: string }
 > = {
-  geral:      { agente: "geral",      credito: "chat" },
-  trabalho:   { agente: "trabalho",   credito: "trabalhos" },
+  geral: { agente: "geral", credito: "chat" },
+  trabalho: { agente: "trabalho", credito: "trabalhos" },
   matematica: { agente: "matematica", credito: "matematica" },
-  traducao:   {
+  traducao: {
     agente: "geral",
     credito: "traducao",
     prefixo:
@@ -95,7 +89,12 @@ async function chamarAgente(
   if (ct.includes("application/json")) {
     const j = await res.json();
     return (
-      j.resposta ?? j.resultado ?? j.answer ?? j.message ?? j.content ?? j.text ??
+      j.resposta ??
+      j.resultado ??
+      j.answer ??
+      j.message ??
+      j.content ??
+      j.text ??
       (typeof j === "string" ? j : JSON.stringify(j))
     );
   }
@@ -118,7 +117,10 @@ export const sendMessage = createServerFn({ method: "POST" })
 
     // 1. Perfil + plano
     const { data: profile } = await supabase
-      .from("profiles").select("plano").eq("id", userId).single();
+      .from("profiles")
+      .select("plano")
+      .eq("id", userId)
+      .single();
     const plano = profile?.plano ?? "free";
 
     // 2. Configuração da secção
@@ -133,7 +135,7 @@ export const sendMessage = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .eq("dia", dia)
       .maybeSingle();
-    const usado = ((usoExistente as Record<string, number> | null)?.[tipoCredito]) ?? 0;
+    const usado = (usoExistente as Record<string, number> | null)?.[tipoCredito] ?? 0;
     const limite = LIMITES[plano]?.[tipoCredito] ?? 0;
     if (usado >= limite) {
       throw new Error(
@@ -173,14 +175,10 @@ export const sendMessage = createServerFn({ method: "POST" })
     // 7. Texto enviado ao agente (com prefixo da ferramenta se existir)
     const textoAgente = cfg.prefixo ? cfg.prefixo + data.texto : data.texto;
 
-    const resposta = await chamarAgente(
-      cfg.agente,
-      chatId!,
-      userId,
-      textoAgente,
-      historico ?? [],
-      { plano, creditos_restantes: Math.max(0, limite - usado) },
-    );
+    const resposta = await chamarAgente(cfg.agente, chatId!, userId, textoAgente, historico ?? [], {
+      plano,
+      creditos_restantes: Math.max(0, limite - usado),
+    });
 
     // 8. Guardar resposta
     await supabase.from("mensagens").insert({

@@ -14,9 +14,7 @@ export const syncGoogleEmail = createServerFn({ method: "POST" })
     if (uerr) throw new Error(uerr.message);
     const identities = userData.user?.identities ?? [];
     const google = identities.find((i) => i.provider === "google");
-    const email =
-      (google?.identity_data as { email?: string } | undefined)?.email ??
-      null;
+    const email = (google?.identity_data as { email?: string } | undefined)?.email ?? null;
     if (!email) return { google_email: null as string | null };
 
     const { error } = await supabase
@@ -36,12 +34,7 @@ export const saveGoogleEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      email: z
-        .string()
-        .trim()
-        .toLowerCase()
-        .email({ message: "Email inválido" })
-        .max(255),
+      email: z.string().trim().toLowerCase().email({ message: "Email inválido" }).max(255),
     }),
   )
   .handler(async ({ data, context }) => {
@@ -61,9 +54,7 @@ export const saveGoogleEmail = createServerFn({ method: "POST" })
 export const lookupTelefoneByGoogleEmail = createServerFn({ method: "POST" })
   .inputValidator(z.object({ email: z.string().email() }))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select("telefone")

@@ -2,21 +2,16 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const SECCOES = [
-  "geral",
-  "trabalho",
-  "matematica",
-  "traducao",
-  "resumo",
-  "corretor",
-] as const;
+const SECCOES = ["geral", "trabalho", "matematica", "traducao", "resumo", "corretor"] as const;
 
 export const listChats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    z.object({
-      seccao: z.enum(SECCOES).optional(),
-    }).optional(),
+    z
+      .object({
+        seccao: z.enum(SECCOES).optional(),
+      })
+      .optional(),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -68,12 +63,7 @@ export const getProfileWithUsage = createServerFn({ method: "GET" })
     const dia = new Date().toISOString().slice(0, 10);
     const [{ data: profile }, { data: uso }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-      supabase
-        .from("usage_daily")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("dia", dia)
-        .maybeSingle(),
+      supabase.from("usage_daily").select("*").eq("user_id", userId).eq("dia", dia).maybeSingle(),
     ]);
     const isAdmin = (profile as any)?.telefone === "861403004";
     const usoSafe = uso ?? { chat: 0, matematica: 0, traducao: 0, resumo: 0, trabalhos: 0 };

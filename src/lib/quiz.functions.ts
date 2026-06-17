@@ -13,9 +13,7 @@ function hashStr(s: string): number {
 
 function pickDailyTwo<T extends { id: string }>(quizzes: T[], dia: string): T[] {
   if (quizzes.length <= 2) return quizzes;
-  const scored = quizzes
-    .map((q) => ({ q, s: hashStr(dia + q.id) }))
-    .sort((a, b) => a.s - b.s);
+  const scored = quizzes.map((q) => ({ q, s: hashStr(dia + q.id) })).sort((a, b) => a.s - b.s);
   return [scored[0].q, scored[1].q];
 }
 
@@ -30,7 +28,10 @@ export const getDailyQuizzes = createServerFn({ method: "GET" })
       .from("quiz_respostas")
       .select("*")
       .eq("user_id", userId)
-      .in("quiz_id", dailyAll.map((q: any) => q.id));
+      .in(
+        "quiz_id",
+        dailyAll.map((q: any) => q.id),
+      );
     const respMap = new Map((respostas ?? []).map((r: any) => [r.quiz_id, r]));
     return dailyAll.map((q: any) => ({
       id: q.id,
@@ -45,7 +46,9 @@ export const getDailyQuizzes = createServerFn({ method: "GET" })
 
 export const responderQuiz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ quiz_id: z.string().uuid(), resposta: z.number().int().min(0).max(10) }))
+  .inputValidator(
+    z.object({ quiz_id: z.string().uuid(), resposta: z.number().int().min(0).max(10) }),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: quiz, error: e1 } = await supabase
@@ -76,10 +79,7 @@ export const getQuizStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data } = await supabase
-      .from("quiz_respostas")
-      .select("correta")
-      .eq("user_id", userId);
+    const { data } = await supabase.from("quiz_respostas").select("correta").eq("user_id", userId);
     const total = data?.length ?? 0;
     const acertos = (data ?? []).filter((r: any) => r.correta).length;
     return { total, acertos, taxa: total > 0 ? Math.round((acertos / total) * 100) : 0 };

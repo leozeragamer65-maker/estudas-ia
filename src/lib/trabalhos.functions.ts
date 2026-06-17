@@ -11,6 +11,7 @@ export const createTrabalho = createServerFn({ method: "POST" })
         dados: z.any(),
         tipo_fonte: z.enum(["internet", "anexo"]),
         anexos: z.array(z.any()).optional(),
+        telefone: z.string().optional(),
       }),
     }),
   )
@@ -53,7 +54,8 @@ export const createTrabalho = createServerFn({ method: "POST" })
 
     // If internet mode, call external agent with callback_url including telefone
     if (data.data.tipo_fonte === "internet") {
-      const callbackUrl = `https://estudas-ia.lovable.app/api/public/trabalhos/receber?telefone=${encodeURIComponent(profile.telefone || "")}`;
+      const telefoneUsuario = data.data.telefone || profile.telefone || "";
+      const callbackUrl = `https://estudas-ia.lovable.app/api/public/trabalhos/receber?telefone=${encodeURIComponent(telefoneUsuario)}`;
 
       try {
         await fetch("https://estudo-moz-assist.lovable.app/api/public/agent/generate", {
