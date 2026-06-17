@@ -9,10 +9,7 @@ import "katex/dist/katex.min.css";
 export function MessageContent({ text }: { text: string }) {
   return (
     <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed prose-p:my-2 prose-pre:my-2 prose-headings:mt-3 prose-headings:mb-1">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-      >
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
         {text}
       </ReactMarkdown>
     </div>
