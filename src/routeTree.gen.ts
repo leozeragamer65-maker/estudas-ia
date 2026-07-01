@@ -25,8 +25,8 @@ import { Route as AuthenticatedAppCorretorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
 import { Route as AuthenticatedAppApresentacoesRouteImport } from './routes/_authenticated.app.apresentacoes'
 import { Route as AuthenticatedAppAdminRouteImport } from './routes/_authenticated.app.admin'
-import { Route as ApiPublicWebhookEscalepayRouteImport } from './routes/api/public/webhook.escalepay'
-import { Route as ApiPublicTrabalhosReceberRouteImport } from './routes/api/public/trabalhos.receber'
+import { Route as ApiPublicWebhookEscalepayRouteImport } from './routes/api/public/webhook/escalepay'
+import { Route as ApiPublicTrabalhosReceberRouteImport } from './routes/api/public/trabalhos/receber'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',

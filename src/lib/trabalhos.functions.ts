@@ -7,12 +7,10 @@ export const createTrabalho = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      data: z.object({
-        dados: z.any(),
-        tipo_fonte: z.enum(["internet", "anexo"]),
-        anexos: z.array(z.any()).optional(),
-        telefone: z.string().optional(),
-      }),
+      dados: z.any(),
+      tipo_fonte: z.enum(["internet", "anexo"]),
+      anexos: z.array(z.any()).optional(),
+      telefone: z.string().optional(),
     }),
   )
   .handler(async ({ data, context }) => {
@@ -36,10 +34,10 @@ export const createTrabalho = createServerFn({ method: "POST" })
       .from("trabalhos")
       .insert({
         user_id: userId,
-        dados_formulario: data.data.dados,
-        tipo_fonte: data.data.tipo_fonte,
-        anexos: data.data.anexos || [],
-        status: data.data.tipo_fonte === "internet" ? "gerando" : "pendente_adm",
+        dados_formulario: data.dados,
+        tipo_fonte: data.tipo_fonte,
+        anexos: data.anexos || [],
+        status: data.tipo_fonte === "internet" ? "gerando" : "pendente_adm",
       })
       .select("id")
       .single();
@@ -53,8 +51,8 @@ export const createTrabalho = createServerFn({ method: "POST" })
       .eq("id", userId);
 
     // If internet mode, call external agent with callback_url including telefone
-    if (data.data.tipo_fonte === "internet") {
-      const telefoneUsuario = data.data.telefone || profile.telefone || "";
+    if (data.tipo_fonte === "internet") {
+      const telefoneUsuario = data.telefone || profile.telefone || "";
       const callbackUrl = `https://estudas-ia.lovable.app/api/public/trabalhos/receber?telefone=${encodeURIComponent(telefoneUsuario)}`;
 
       try {
@@ -65,25 +63,23 @@ export const createTrabalho = createServerFn({ method: "POST" })
             trabalho_id: trabalho.id,
             utilizador_id: userId,
             callback_url: callbackUrl,
-            ...data.data.dados,
+            ...data.dados,
           }),
         });
       } catch (e) {
         console.error("Falha ao chamar agente generate:", e);
       }
 
-      // Notify user that generation started
       await supabase.from("notifications").insert({
         user_id: userId,
         titulo: "Trabalho em geração",
-        corpo: `O teu trabalho sobre "${data.data.dados.tema}" foi registado e está a ser gerado. Vais ser notificado quando estiver pronto.`,
+        corpo: `O teu trabalho sobre "${data.dados.tema}" foi registado e está a ser gerado. Vais ser notificado quando estiver pronto.`,
       });
     } else {
-      // Notify admin for anexo mode
       await supabase.from("notifications").insert({
         user_id: userId,
         titulo: "Trabalho em análise",
-        corpo: `O teu trabalho sobre "${data.data.dados.tema}" foi enviado para análise. Prazo até 6h.`,
+        corpo: `O teu trabalho sobre "${data.dados.tema}" foi enviado para análise. Prazo até 6h.`,
       });
     }
 
@@ -108,37 +104,33 @@ export const signAnexoUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      data: z.object({
-        nome: z.string(),
-        tamanho: z.number(),
-      }),
+      nome: z.string(),
+      tamanho: z.number(),
     }),
   )
   .handler(async ({ data, context }) => {
-    const path = `anexos/${context.userId}/${Date.now()}-${data.data.nome.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-    const { signedUrl, error } = await supabaseAdmin.storage
+    const path = `anexos/${context.userId}/${Date.now()}-${data.nome.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { data: signed, error } = await supabaseAdmin.storage
       .from("trabalhos-anexos")
       .createSignedUploadUrl(path);
 
-    if (error) throw new Error(error.message);
-    return { path, token: signedUrl };
+    if (error || !signed) throw new Error(error?.message ?? "Falha ao criar URL");
+    return { path: signed.path, token: signed.token };
   });
 
 export const signDownload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      data: z.object({
-        path: z.string(),
-      }),
+      path: z.string(),
     }),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const { data: url, error } = await supabaseAdmin.storage
       .from("trabalhos-anexos")
-      .createSignedUrl(data.data.path, 3600);
+      .createSignedUrl(data.path, 3600);
 
-    if (error) throw new Error(error.message);
+    if (error || !url) throw new Error(error?.message ?? "Falha ao criar URL");
     return { url: url.signedUrl };
   });
 
@@ -148,7 +140,6 @@ export const adminListTrabalhos = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    // Check if admin
     const { data: profile } = await supabase
       .from("profiles")
       .select("telefone")
@@ -159,7 +150,6 @@ export const adminListTrabalhos = createServerFn({ method: "GET" })
       throw new Error("Não autorizado");
     }
 
-    // List pending trabalhos
     const { data: trabalhos, error } = await supabase
       .from("trabalhos")
       .select("*")
@@ -175,40 +165,35 @@ export const adminSignUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      data: z.object({
-        trabalhoId: z.string(),
-        nome: z.string(),
-      }),
+      trabalhoId: z.string(),
+      nome: z.string(),
     }),
   )
-  .handler(async ({ data, context }) => {
-    const path = `entregas/${data.data.trabalhoId}/${Date.now()}-${data.data.nome.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-    const { signedUrl, error } = await supabaseAdmin.storage
+  .handler(async ({ data }) => {
+    const path = `entregas/${data.trabalhoId}/${Date.now()}-${data.nome.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+    const { data: signed, error } = await supabaseAdmin.storage
       .from("trabalhos-anexos")
       .createSignedUploadUrl(path);
 
-    if (error) throw new Error(error.message);
-    return { path, token: signedUrl };
+    if (error || !signed) throw new Error(error?.message ?? "Falha ao criar URL");
+    return { path: signed.path, token: signed.token };
   });
 
 export const adminEntregar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
-      data: z.object({
-        trabalhoId: z.string(),
-        ficheiro_url: z.string(),
-      }),
+      trabalhoId: z.string(),
+      ficheiroPath: z.string(),
     }),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 
-    // Update trabalho status
     const { data: trabalho, error: selectError } = await supabase
       .from("trabalhos")
       .select("user_id, dados_formulario")
-      .eq("id", data.data.trabalhoId)
+      .eq("id", data.trabalhoId)
       .single();
 
     if (selectError) throw new Error(selectError.message);
@@ -216,15 +201,14 @@ export const adminEntregar = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("trabalhos")
       .update({
-        ficheiro_url: data.data.ficheiro_url,
+        ficheiro_url: data.ficheiroPath,
         status: "entregue",
         entregue_em: new Date().toISOString(),
       })
-      .eq("id", data.data.trabalhoId);
+      .eq("id", data.trabalhoId);
 
     if (error) throw new Error(error.message);
 
-    // Notify user
     const tema = (trabalho.dados_formulario as any)?.tema ?? "trabalho";
     await supabase.from("notifications").insert({
       user_id: trabalho.user_id,
