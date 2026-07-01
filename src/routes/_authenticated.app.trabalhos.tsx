@@ -154,8 +154,8 @@ function TrabalhosPage() {
         toast.error("Preenche todos os campos obrigatórios.");
         return;
       }
-    if (f.paginas < 8) {
-      toast.error("Mínimo 8 páginas.");
+    if (f.paginas < 8 || f.paginas > 20) {
+      toast.error("Número de páginas deve estar entre 8 e 20.");
       return;
     }
     if (tipoFonte === "anexo" && anexos.length === 0) {
@@ -261,12 +261,30 @@ function TrabalhosPage() {
                 </SelectContent>
               </Select>
             </Campo>
-            <Campo label="Número de páginas (mín. 8) *">
+            <Campo label="Número de páginas (8 – 20) *">
               <Input
                 type="number"
                 min={8}
-                value={f.paginas}
-                onChange={(e) => upd("paginas", Math.max(8, Number(e.target.value) || 8))}
+                max={20}
+                value={f.paginas ? f.paginas : ""}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") {
+                    upd("paginas", 0);
+                    return;
+                  }
+                  const n = Number(raw);
+                  if (!Number.isFinite(n)) return;
+                  // Clamp apenas o limite máximo durante digitação para permitir
+                  // que o utilizador digite valores parciais (ex. "1" antes de "12").
+                  upd("paginas", n > 20 ? 20 : n);
+                }}
+                onBlur={(e) => {
+                  const n = Number(e.target.value);
+                  if (!Number.isFinite(n) || n === 0) return;
+                  if (n < 8) upd("paginas", 8);
+                  else if (n > 20) upd("paginas", 20);
+                }}
               />
             </Campo>
             <Campo

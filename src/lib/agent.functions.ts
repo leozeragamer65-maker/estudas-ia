@@ -30,7 +30,7 @@ const SECCAO_CFG: Record<
     agente: "geral",
     credito: "traducao",
     prefixo:
-      "Actua como tradutor profissional. Traduz o texto seguinte de forma natural e fiel, preservando o sentido. Se o utilizador não indicar a língua de destino, pergunta. Texto:\n\n",
+      "Actua como tradutor profissional multilingue com suporte a QUALQUER língua do mundo (incluindo línguas menos comuns e dialectos). Traduz o texto seguinte de forma natural e fiel para a língua de destino indicada pelo utilizador — se não indicar, pergunta primeiro. Depois da tradução, adiciona uma secção **Explicação** (2-4 frases) em português de Moçambique explicando brevemente o sentido do texto traduzido, escolhas de tradução importantes e vocabulário que ajude o aluno a compreender melhor. Formato:\n\n**Tradução:**\n<texto traduzido>\n\n**Explicação:**\n<explicação breve>\n\nTexto original:\n\n",
   },
   resumo: {
     agente: "geral",
@@ -164,18 +164,24 @@ export const sendMessage = createServerFn({ method: "POST" })
       conteudo: data.texto,
     });
 
-    // 6. Histórico
-    const { data: historico } = await supabase
+    // 6. Contexto: apenas as últimas 5 respostas do agente para esta sessão
+    //    (economiza tokens; histórico completo continua persistido no Supabase).
+    const { data: ultimasRespostas } = await supabase
       .from("mensagens")
-      .select("role,conteudo")
+      .select("role,conteudo,created_at")
       .eq("chat_id", chatId)
-      .order("created_at", { ascending: true })
-      .limit(40);
+      .eq("role", "assistant")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    const historico = (ultimasRespostas ?? [])
+      .slice()
+      .reverse()
+      .map((m) => ({ role: m.role, conteudo: m.conteudo }));
 
     // 7. Texto enviado ao agente (com prefixo da ferramenta se existir)
     const textoAgente = cfg.prefixo ? cfg.prefixo + data.texto : data.texto;
 
-    const resposta = await chamarAgente(cfg.agente, chatId!, userId, textoAgente, historico ?? [], {
+    const resposta = await chamarAgente(cfg.agente, chatId!, userId, textoAgente, historico, {
       plano,
       creditos_restantes: Math.max(0, limite - usado),
     });
